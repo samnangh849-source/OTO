@@ -1,0 +1,48 @@
+import express from 'express';
+import { networkInterfaces } from 'os';
+import { GoogleSheetService } from '../../services/googleSheet.service.js';
+
+const router = express.Router();
+const PORT = parseInt(process.env.PORT || '3000', 10);
+
+router.get('/network', (req, res) => {
+    const nets = networkInterfaces();
+    const results: string[] = [];
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name]!) {
+            if (net.family === 'IPv4' && !net.internal) {
+                results.push(`http://${net.address}:${PORT}`);
+            }
+        }
+    }
+    res.json({ addresses: results, port: PORT });
+});
+
+router.get('/stats', async (req, res) => {
+    try {
+        const messages = await GoogleSheetService.getMessages() || [];
+        const total = messages.length;
+        const incoming = messages.filter((m: any) => !m.is_outgoing).length;
+        const outgoing = messages.filter((m: any) => m.is_outgoing).length;
+        const unreplied = messages.filter((m: any) => !m.is_outgoing && !m.is_replied).length;
+        
+        // Count top users
+        const counts: Record<string, number> = {};
+        messages.forEach((m: any) => {
+            if (!m.is_outgoing) {
+                counts[m.sender_name] = (counts[m.sender_name] || 0) + 1;
+            }
+        });
+        
+        const topUsers = Object.entries(counts)
+            .map(([sender_name, c]) => ({ sender_name, c }))
+            .sort((a, b) => b.c - a.c)
+            .slice(0, 5);
+
+        res.json({ total, incoming, outgoing, unreplied, topUsers });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+});
+
+export default router;

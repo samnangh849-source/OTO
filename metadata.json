@@ -1,0 +1,5 @@
+{
+  "name": "OTO Messages",
+  "description": "A dashboard to receive Telegram messages and manually reply using predefined templates.",
+  "requestFramePermissions": []
+}

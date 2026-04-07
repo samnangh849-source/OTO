@@ -1,0 +1,486 @@
+ទិន្នន័យត្រូវតែ Reel Time
+
+png និង JPG អាចផ្ញើជា photo បាន និង MP4 អាចផ្ញើជា video បាន
+
+ការរៀប Workflows User អាចបញ្ចូលរូបជា JPG ឬ Png បាន និង. video អាចបញ្ចូលរូបជា MP4 បាន
+
+រាល់ប្រភេទ Audio ទាំងអស់ត្រូវតែជា ogg ទោះបីជា ប្រភេទ Wave ឬ mp3 ត្រូវតែ Convert ជាogg ដោយស្វ័យប្រវត្ដ មុនផ្ញើរ ឬ Import ចូលប្រព័ន្ធ រីឯ
+
+
+រាល់ប្រភេទ image ត្រូវតែ jpg ទោះបីជា ប្រភេទ png ឬ webp ត្រូវតែ Convert ជា jpg ដោយស្វ័យប្រវត្ដ មុនផ្ញើរ ឬ Import ចូលប្រព័ន្ធ
+
+
+ហេតុអ្វីអ្នកទទួលឃើញជា file ដែលមិនមាន (file formart)ត្រឹមត្រូវ ដោយមិនឃើញជាប្រភេទ photo.jpg(compression) ឬ video.mp4 ចឹង?
+
+តើយើងអាចអាយ user អាច install ជា .exe សម្រាប់ Windows បានទេ?
+
+សូមត្រួតពិនិត្យការបញ្ជូនសារគ្រប់ប្រភេទ
+
+
+User ត្រូវតែមើលឃើញ Activity Real-Time ដូច Telegram App អញ្ចឹងដែរ
+
+
+
+អ្នក អាចលុបវាបាន ដោយសុវត្ថិភាព ប៉ុន្តែមានចំណុចខ្លះដែលអ្នកត្រូវដឹង៖
+
+  ១. កម្មវិធីនឹងឈប់ដំណើរការភ្លាមៗ៖ ប្រសិនបើអ្នកលុបវា អ្នកនឹងមិនអាច run កម្មវិធី (npm run dev) ឬ build កម្មវិធីបានទេ ព្រោះបណ្ណាល័យសំខាន់ៗត្រូវបានបាត់បង់។
+
+  ២. អាចទាញយកមកវិញបានគ្រប់ពេល៖ ដរាបណាអ្នកនៅមានឯកសារ package.json និង package-lock.json អ្នកគ្រាន់តែវាយបញ្ជា (command) ខាងក្រោមនៅក្នុង Terminal នោះវានឹងបង្កើតថត
+  node_modules មកវិញដោយស្វ័យប្រវត្តិ៖
+   1    npm install
+
+  ហេតុអ្វីបានជាគេចង់លុបវា?
+   * ដើម្បីសន្សំទំហំម៉ាស៊ីន (Disk Space): នៅពេលអ្នកមិនប្រើគម្រោង (project) នោះយូរ អ្នកអាចលុបវាដើម្បីយកទំហំ Disk មកវិញ (ព្រោះវាអាចមានទំហំរាប់រយ MB)។
+   * ដើម្បីដោះស្រាយបញ្ហា (Fix Errors): ជួនកាលការដំឡើង package មានបញ្ហា គេច្រើនលុប node_modules ចោល រួច run npm install សារជាថ្មីដើម្បីឱ្យវាស្អាតល្អ។
+
+  សង្ខេប៖ លុបបាន មិនខូចកូដដែលអ្នកសរសេរទេ ប៉ុន្តែត្រូវ npm install ឡើងវិញទើបអាចប្រើកម្មវិធីបាន។
+
+
+
+បញ្ហា: ប្រព័ន្ធមិនបង្ហាញសារថ្មី របស់គណនីថ្មី chat មកកាន់គណនីដែលកំពុង connceted
+
+
+
+
+ើអ្នកចង់ឱ្យខ្ញុំជួយរៀបចំមុខងារអ្វីបន្ថែមទៀតទេ? ឧទាហរណ៍៖ ការផ្ញើសារជាសំឡេង (Voice Message)
+  ពីទូរសព្ទ?
+
+តើយើងអាចអាយ user អាច install ជា APK សម្រាប់ Android បានទេ?
+
+តើយើងអាចអាយ user អាច install ជា EXE សម្រាប់ Windows បានទេ?
+
+Database តើអាចរក្សារទុកក្នុង Device របស់ User បានទេ ហើយអាច Clear Chach បាន
+
+ចុះបើខ្ញុំ Deploy ក្នុង Render ហើយទិន្នន័យទាំងអស់ត្រូវរក្សារទុកផងដែរក្នុង Google Sheet តាមរយៈ App Script ហើយ Render មានអាចរក្សារទុកទិន្នន័យទៅក្នុង Google Sheet ហើយក៏អាច ទាញទិន្នន័យពី Google Sheet មកប្រើវិញ ដើម្បីក្នុងលក្ខខណ្ឌថា ប្រសិនបើ database.sqlite គឹប្រើបានធំបំផុត 200MB ចឹង Render អាចធ្វើការបែប Dynamic រក្សាទិន្នន័យចាស់ៗទៅទុកក្នុង Google Sheet ចាំពេលត្រូវការទើបទាញយកមក ហើយdatabase.sqlite ហាក់ដូចជា Ram ចឹងឯង
+
+
+សូមអភិវឌ្ឍផ្នែក (Templates និងSettings)សម្រាប់តែMobileDashboard.tsx
+
+
+រួចបើក npx cap open android ដើម្បី Build ជាឯកសារ .apk នៅក្នុង Android Studio។
+
+
+តើអាច(ប្រើប្រាស់បច្ចេកវិទ្យា MTProto តាមរយៈ gramjs) មានតួនាទីគ្រាន់តែជាអ្នកទៅសួរ Server របស់ Telegram ថា៖ "តើមាននរណាផ្ញើសារមកខ្ញុំខ្លះពេលខ្ញុំអត់នៅ?" បានទេ? បន្ទាប់មក Server នឹងទម្លាក់ទិន្នន័យទាំងអស់ដែលបានរក្សាទុកនោះ មកបង្ហាញលើអេក្រង់? ខ្ញុំធ្វើបែបនេះដើម្បី(បិទទូរស័ព្ទចោល១ខែ ក៏ពេលបើកមកវិញ ទិន្នន័យនៅចន្លោះខែនោះទាំងអស់ត្រូវបានមើលឃើញដែរ)
+
+
+
+បាទ ពិតជាអាចបាន! ការប្រើប្រាស់ gramjs (MTProto) ដើម្បីទាញយកសារដែលខកខានមិនបានអាន (Missed messages) គឺជាចំណុចខ្លាំងមួយរបស់វា បើធៀបនឹង Telegram Bot API ធម្មតា។
+
+  នៅក្នុងបច្ចេកវិទ្យា MTProto របស់ Telegram អ្នកអាចធ្វើកិច្ចការនេះបានតាមរយៈវិធីសាស្ត្រពីរយ៉ាង៖
+
+  ១. ការប្រើប្រាស់ GetHistory (ទាញយកតាម Chat នីមួយៗ)
+  ប្រសិនបើអ្នកចង់ដឹងថានៅក្នុង Chat ជាក់លាក់ណាមួយ មានសារអ្វីខ្លះដែលផ្ញើមកពេលអ្នក Offline អ្នកអាចប្រើមុខងារ messages.getHistory។ អ្នកអាចកំណត់ offset_id ដើម្បីទាញយកតែសារណាដែលថ្មីជាងសារចុងក្រោយដែលអ្នកបានឃើញ។
+
+  ២. ការប្រើប្រាស់ GetState និង GetDifference (បច្ចេកទេសត្រឹមត្រូវបំផុត)
+  នេះគឺជាវិធីដែល App Telegram ផ្លូវការប្រើប្រាស់៖
+   * GetState: នៅពេលអ្នកបិទ App អ្នកត្រូវរក្សាទុកតម្លៃមួយហៅថា pts (Persistent Tracking State)។
+   * GetDifference: នៅពេលអ្នកបើក App វិញ អ្នកផ្ញើតម្លៃ pts នោះទៅកាន់ Server រួចសួរថា "តើមានអ្វីប្រែប្រួលខ្លះ (Difference) ចាប់តាំងពីលេខ pts នេះមក?"
+   * Server នឹងបញ្ជូនរាល់សារថ្មីៗ ការលុបសារ ឬការកែប្រែផ្សេងៗដែលកើតឡើងពេលអ្នក Offline មកឱ្យអ្នកទាំងអស់តែម្តង។
+
+  តើវាបង្ហាញលើអេក្រង់យ៉ាងដូចម្តេច?
+  នៅពេល Server ទម្លាក់ទិន្នន័យមក វានឹងមកជាទម្រង់ JSON Object ដែលមានផ្ទុក៖
+   * អត្ថបទសារ (Message text)
+   * អ្នកផ្ញើ (Sender ID)
+   * ពេលវេលា (Timestamp)
+   * ស្ថានភាពអានរួច ឬនៅ (Read/Unread status)
+
+  សរុបមក៖ gramjs អាចធ្វើតួនាទីជា "អ្នកនាំសារ" ទៅសួរ Telegram Server និងនាំយកទិន្នន័យដែលខកខានទាំងអស់មកបង្ហាញលើ Dashboard របស់អ្នកបានយ៉ាងមានប្រសិទ្ធភាព។
+
+  តើអ្នកចង់ឱ្យខ្ញុំជួយសរសេរកូដគំរូ (Example Code) ក្នុង gramjs ដើម្បីទាញយកសារទាំងនោះដែរឬទេ?
+
+ខ្ញុំមិនចង់ប្រើ database សម្រាប់រក្សារទុក
+សូមប្រើប្រាស់ GetState និង GetDifference សម្រាប់ការរក្សាទុកសារ
+
+
+
+
+ ឥឡូវនេះ ប្រព័ន្ធរបស់អ្នកកាន់តែមានប្រសិទ្ធភាពខ្ពស់៖
+   1. Sync សារដែលខកខាន: រាល់ពេល Server បើកដំណើរការ វានឹងទៅសួរ Telegram រកសារដែលផ្ញើមកពេលអ្នក Offline (ដោយប្រើ getDifference)។
+   2. រក្សាទុកក្នុង Database ដោយស្វ័យប្រវត្ត: រាល់សារដែលខកខានទាំងនោះ នឹងត្រូវទាញយកមកវិភាគ (Media, Photo, Sender) រួចបញ្ចូលទៅក្នុង Database របស់អ្នកភ្លាមៗ។
+   3. ការពារការស្ទួន (De-duplication): ខ្ញុំបានបន្ថែមការឆែកមើល telegram_message_id មុននឹងបញ្ចូលទៅក្នុង DB ដើម្បីធានាថាមិនមានសារដែលស្ទួនគ្នានោះទេ។
+   4. កូដស្អាត (Clean Code): ខ្ញុំបានប្រមូលផ្ដុំ Logic នៃការចាត់ចែងសារទៅក្នុង function រួមមួយឈ្មោះថា processIncomingMessage ដែលធ្វើឱ្យការថែទាំកូដងាយស្រួលជាងមុន។
+
+  អ្នកអាចសាកល្បងដោយ៖
+   * បិទ Server របស់អ្នក។
+   * ផ្ញើសារចូល Telegram របស់អ្នកពី Account ផ្សេង។
+   * បើក Server របស់អ្នកឡើងវិញ។
+   * អ្នកនឹងឃើញសារនោះលោតឡើងក្នុង Dashboard ដោយស្វ័យប្រវត្តិ!
+
+  តើមានចំណុចណាផ្សេងទៀតដែលអ្នកចង់ឱ្យខ្ញុំជួយបន្ថែមដែរឬទេ?
+
+
+  ត្រូវប្រាកដថាទិន្នន័យសារគឺ Real-Time 100% មិនមានការខកខានសូម្បីតែមួយសារ
+
+  បន្ថែមមុខងារ Export និង Import សម្រាប់ផ្នែក Templates
+
+  ហេតុអ្វីខ្ញុំនៅតែមិនឃើញសារថ្មីៗ បច្ចុប្បន្ន ឬវានៅជាប់ជាមួយដំណើរការចាស់ នៅប្រើប្រាស់តែទិន្នន័យ Database សម្រាប់ Save History?
+
+
+
+   ខ្ញុំបានកែសម្រួលផ្នែក Backend ដើម្បីឱ្យវាបញ្ជូន account_id ទៅកាន់ Dashboard រាល់ពេលមានសារថ្មីចូលមក។
+
+
+
+
+្តត្រួតពិនិត្យផ្នែក (មុខងារ Export)
+
+សូមយកគំរូពី(/Users/macbookpro/Downloads/telegram-manual-reply-dashboard-mobile) ពាក់ព័ន្ធការបង្ហាញសារ ទាញយកទិន្នន័យសារ ពី Telegram ទៅកាន់ ប្រព័ន្ធរបស់ខ្ញុំ
+
+
+
+ > តើអាច(ប្រើប្រាស់បច្ចេកវិទ្យា MTProto តាមរយៈ gramjs) មានតួនាទីគ្រាន់តែជាអ្នកទៅសួរ Server របស់ Telegram ថា៖ "តើមាននរណាផ្ញើសារមកខ្ញុំខ្លះពេលខ្ញុំអត់នៅ?" បានទេ? បន្ទាប់មក Server          
+   នឹងទម្លាក់ទិន្នន័យទាំងអស់ដែលបានរក្សាទុកនោះ មកបង្ហាញលើអេក្រង់? ខ្ញុំធ្វើបែបនេះដើម្បី(បិទទូរស័ព្ទចោល១ខែ ក៏ពេលបើកមកវិញ ទិន្នន័យនៅចន្លោះខែនោះទាំងអស់ត្រូវបានមើលឃើញដែរ)  
+
+
+
+
+  ---
+
+  ចំណុចដែលត្រូវប្រុងប្រយ័ត្ន:
+  ដើម្បីឱ្យមុខងារនេះដើរបាន ១០០% ដូច Mobile App នោះ អ្នកត្រូវប្រាកដថា គណនី Telegram របស់អ្នកនៅតែតភ្ជាប់ (Connected)។ ប្រសិនបើ Session ដាច់ (Logout) វានឹងមិនអាចទៅ Fetch
+  ទិន្នន័យបានឡើយ។
+
+  តើអ្នកចង់ឱ្យខ្ញុំជួយពិនិត្យមើលមុខងារណាផ្សេងទៀតដែលអ្នកចូលចិត្តក្នុងគម្រោង Mobile ហើយចង់ឱ្យមានក្នុង Dashboard នេះដែរឬទេ? (ឧទាហរណ៍៖ ការតម្រៀបសារតាមប្រភេទ, ឬការបង្ហាញស្ថានភាព "Online"
+  ឱ្យកាន់តែច្បាស់)។_
+
+
+
+តើអ្នកចង់ឱ្យខ្ញុំជួយកែសម្រួល File src/services/telegram.service.ts របស់អ្នក ដើម្បីឱ្យវាប្រើ Google Sheet នេះជំនួស SQLite ដែរឬទេ? (ខ្ញុំឃើញក្នុង Project របស់អ្នកមានប្រើ Prisma/SQLite នៅឡើយ)។
+
+
+
+ញុំបានរៀបចំរួចរាល់ហើយសម្រាប់ការផ្លាស់ប្តូរ Architecture របស់អ្នក។ នេះគឺជាអ្វីដែលខ្ញុំបានធ្វើ៖
+
+  ១. បង្កើត src/services/googleSheet.service.ts
+  ខ្ញុំបានបង្កើត Service ថ្មីមួយសម្រាប់ធ្វើជាស្ពាន (Bridge) ទាក់ទងទៅកាន់ Google Apps Script Web App របស់អ្នក។ វាមានសមត្ថភាពអាច រក្សាទុក/ទាញយក Account, Message, Template និង Setting ពី
+  Google Sheet។
+
+  ២. កែសម្រួល src/services/telegram.service.ts
+  ខ្ញុំបានប្តូរការប្រើប្រាស់ Prisma/SQLite មកប្រើ GoogleSheetService វិញទាំងស្រុងនៅក្នុង File នេះ៖
+   * Sessions: ពេល Login ជោគជ័យ វានឹងបម្លែង Session ទៅជា String ហើយផ្ញើទៅទុកក្នុង Google Sheet។
+   * Messages: រាល់ពេលមានសារថ្មីចូល វានឹងរក្សាទុកក្នុង Google Sheet ជំនួសឱ្យ Database ក្នុងម៉ាស៊ីន។
+   * Sync: រាល់ពេល Sync វានឹងទាញយកទិន្នន័យចុងក្រោយ (PTS/Date) ពី Google Sheet មកប្រើ ដើម្បីកុំឱ្យបាត់សារ។
+
+  ៣. បន្ថែម Configuration ក្នុង .env.example
+  ខ្ញុំបានបន្ថែម Variable GOOGLE_SCRIPT_URL ដើម្បីឱ្យអ្នកងាយស្រួលដាក់ URL ដែលទទួលបានពីការ Deploy Google Apps Script។
+
+  ---
+
+  ជំហានបន្ទាប់ដែលអ្នកត្រូវធ្វើ៖
+   1. Deploy Apps Script: យក Code ដែលខ្ញុំផ្ដល់ឱ្យកាលពីសារមុន ទៅដាក់ក្នុង Google Apps Script រួច Deploy ជា "Web App" (Access: Anyone)។
+   2. Update .env: ចម្លង URL នោះមកដាក់ក្នុង File .env របស់អ្នក៖
+   1     GOOGLE_SCRIPT_URL="URL_ដែលអ្នកទទួលបានពី_google_apps_script"
+   3. Install Axios: ប្រសិនបើមិនទាន់មាន សូម Run ក្នុង Terminal:
+
+   1     npm install axios
+
+  ចំណុចគួរកត់សម្គាល់៖
+   * Media Files: បច្ចុប្បន្នរូបភាព និងវីដេអូនៅតែរក្សាទុកក្នុង Folder uploads/ លើ Render.com ដដែល (វាមានទំហំធំពេកមិនអាចទុកក្នុង Google Sheet បានទេ)។ ដោយសារ Render មាន Disk បណ្ដោះអាសន្ន ២០០MB
+     វានឹងពេញបើមានសារច្រើន ដូច្នេះអ្នកគួរឧស្សាហ៍លុបវាចោល ឬប្រើ Cloud Storage ផ្សេង (ដូចជា Cloudinary) បើចង់ទុកវាឱ្យបានយូរ។
+
+  តើអ្នកចង់ឱ្យខ្ញុំជួយប្តូរ File ផ្សេងៗទៀត (ដូចជា routes សម្រាប់ Template ឬ Setting) ឱ្យទៅប្រើ Google Sheet ដែរឬទេ?
+
+
+
+
+
+
+
+
+
+  សម្រាប់ការដាក់ឱ្យដំណើរការ (Deploy) នៅលើ Render, អ្នកអាចប្រើការកំណត់ដូចខាងក្រោម៖
+
+  ១. Render Dashboard Settings (Manual)
+
+  ប្រសិនបើអ្នកចង់កំណត់តាមរយៈផ្ទាំងបញ្ជា (Dashboard) របស់ Render សូមប្រើ៖
+
+   * Runtime: Node
+   * Build Command:
+
+   1     npm install && npx prisma generate && npx prisma db push && npm run build
+   * Start Command:
+   1     npm start
+
+  ២. Environment Variables (សំខាន់បំផុត)
+
+  អ្នកត្រូវបន្ថែមអថេរបរិស្ថាន (Environment Variables) ទាំងនេះនៅក្នុង Render៖
+
+
+  ┌───────────────────┬──────────────────────────────────────┐
+  │ Key               │ Value (ឧទាហរណ៍)                        │
+  ├───────────────────┼──────────────────────────────────────┤
+  │ NODE_ENV          │ production                           │
+  │ DATABASE_URL      │ file:./prisma/database.sqlite        │
+  │ TELEGRAM_API_ID   │ (លេខ API ID របស់អ្នក)                   │
+  │ TELEGRAM_API_HASH │ (API Hash របស់អ្នក)                    │
+  │ JWT_SECRET        │ (អក្សរសម្ងាត់ណាមួយ ឧទាហរណ៍: mY_S3cr3t_K3y)   │
+  │ GOOGLE_SCRIPT_URL │ (URL របស់ Apps Script ដែលអ្នកបាន Deploy) │
+  └───────────────────┴──────────────────────────────────────┘
+
+  ៣. ការប្រើប្រាស់ render.yaml (Blueprints)
+
+  ប្រសិនបើអ្នកចង់ឱ្យ Render កំណត់អ្វីៗទាំងអស់ដោយស្វ័យប្រវត្តិ អ្នកអាចកែប្រែឯកសារ render.yaml ក្នុងគម្រោងរបស់អ្នកដូចខាងក្រោម៖
+
+    1 services:
+    2   - type: web
+    3     name: telegram-manual-dashboard
+    4     env: node
+    5     plan: free
+    6     buildCommand: npm install && npx prisma generate && npx prisma db push && npm run build
+    7     startCommand: npm start
+    8     envVars:
+    9       - key: NODE_ENV
+   10         value: production
+   11       - key: DATABASE_URL
+   12         value: file:./prisma/database.sqlite
+   13       - key: GOOGLE_SCRIPT_URL
+   14         value: "ដាក់_URL_របស់_Apps_Script_ទីនេះ"
+   15       - key: TELEGRAM_API_ID
+   16         value: "ដាក់_API_ID_ទីនេះ"
+   17       - key: TELEGRAM_API_HASH
+   18         value: "ដាក់_API_HASH_ទីនេះ"
+   19       - key: JWT_SECRET
+   20         value: "បង្កើត_Secret_Key_ទីនេះ"
+   21     disk:
+   22       name: uploads-cache
+   23       mountPath: /app/uploads
+   24       sizeGB: 1
+
+  ចំណាំ៖ ដោយសារគម្រោងនេះប្រើ SQLite ឯកសារទិន្នន័យនឹងត្រូវបាត់បង់រាល់ពេលដែលអ្នក Deploy ថ្មី លុះត្រាតែអ្នកប្រើ Render Disk (សម្រាប់គម្រោងបង់ប្រាក់) ដើម្បីរក្សាទុកឯកសារ .sqlite។ ប្រសិនបើប្រ
+  ចំណាំ៖ ដោយសារគម្រោងនេះប្រើ SQLite ឯកសារទិន្នន័យនឹងត្រូវបាត់បង់រាល់ពេលដែលអ្នក Deploy ថ្មី លុះត្រាតែអ្នកប្រើ Render Disk (សម្រាប់គម្រោងបង់ប្រាក់) ដើម្បីរក្សាទុកឯកសារ .sqlite។ ប្រសិនបើប្រ
+  ចំណាំ៖ ដោយសារគម្រោងនេះប្រើ SQLite ឯកសារទិន្នន័យនឹងត្រូវបាត់បង់រាល់ពេលដែលអ្នក Deploy ថ្មី លុះត្រាតែអ្នកប្រើ Render Disk (សម្រាប់គម្រោងបង់ប្រាក់) ដើម្បីរក្សាទុកឯកសារ .sqlite។ ប្រសិនបើប្រ
+  ចំណាំ៖ ដោយសារគម្រោងនេះប្រើ SQLite ឯកសារទិន្នន័យនឹងត្រូវបាត់បង់រាល់ពេលដែលអ្នក Deploy ថ្មី លុះត្រាតែអ្នកប្រើ Render Disk (សម្រាប់គម្រោងបង់ប្រាក់) ដើម្បីរក្សាទុកឯកសារ .sqlite។ ប្រសិនបើប្រ
+  ចំណាំ៖ ដោយសារគម្រោងនេះប្រើ SQLite ឯកសារទិន្នន័យនឹងត្រូវបាត់បង់រាល់ពេលដែលអ្នក Deploy ថ្មី លុះត្រាតែអ្នកប្រើ Render Disk (សម្រាប់គម្រោងបង់ប្រាក់) ដើម្បីរក្សាទុកឯកសារ .sqlite។ ប្រសិនបើប្រ
+  ចំណាំ៖ ដោយសារគម្រោងនេះប្រើ SQLite ឯកសារទិន្នន័យនឹងត្រូវបាត់បង់រាល់ពេលដែលអ្នក Deploy ថ្មី លុះត្រាតែអ្នកប្រើ Render Disk (សម្រាប់គម្រោងបង់ប្រាក់) ដើម្បីរក្សាទុកឯកសារ .sqlite។ ប្រសិនបើប្រ
+  ចំណាំ៖ ដោយសារគម្រោងនេះប្រើ SQLite ឯកសារទិន្នន័យនឹងត្រូវបាត់បង់រាល់ពេលដែលអ្នក Deploy ថ្មី លុះត្រាតែអ្នកប្រើ Render Disk (សម្រាប់គម្រោងបង់ប្រាក់) ដើម្បីរក្សាទុកឯកសារ .sqlite។ ប្រសិនបើប្រ
+  ចំណាំ៖ ដោយសារគម្រោងនេះប្រើ SQLite ឯកសារទិន្នន័យនឹងត្រូវបាត់បង់រាល់ពេលដែលអ្នក Deploy ថ្មី លុះត្រាតែអ្នកប្រើ Render Disk (សម្រាប់គម្រោងបង់ប្រាក់) ដើម្បីរក្សាទុកឯកសារ .sqlite។ ប្រសិនបើប្រ
+  ចំណាំ៖ ដោយសារគម្រោងនេះប្រើ SQLite ឯកសារទិន្នន័យនឹងត្រូវបាត់បង់រាល់ពេលដែលអ្នក Deploy ថ្មី លុះត្រាតែអ្នកប្រើ Render Disk (សម្រាប់គម្រោងបង់ប្រាក់) ដើម្បីរក្សាទុកឯកសារ .sqlite។ ប្រសិនបើប្រ
+  ចំណាំ៖ ដោយសារគម្រោងនេះប្រើ SQLite ឯកសារទិន្នន័យនឹងត្រូវបាត់បង់រាល់ពេលដែលអ្នក Deploy ថ្មី លុះត្រាតែអ្នកប្រើ Render Disk (សម្រាប់គម្រោងបង់ប្រាក់) ដើម្បីរក្សាទុកឯកសារ .sqlite។ ប្រសិនបើប្រើគម្រោងឥតគិតថ្លៃ (Free Plan)
+  ទិន្នន័យនឹងត្រូវ Reset រាល់ពេលបិទ/បើក Server។
+
+
+
+
+
+ របៀបដាក់ឱ្យដំណើរការ (Deploy) នៅលើ Render គឺមានភាពងាយស្រួល ប្រសិនបើអ្នកមានគណនី GitHub។ នេះគឺជាជំហានលម្អិត៖
+
+  ជំហានទី ១៖ រៀបចំកូដនៅលើ GitHub
+   1. បង្ហោះ (Push) កូដរបស់អ្នកទាំងអស់ទៅកាន់ GitHub Repository (ជា Public ឬ Private ក៏បាន)។
+   2. ប្រាកដថាមានឯកសារ render.yaml និង package.json នៅក្នុងកូដនោះ។
+
+  ជំហានទី ២៖ បង្កើត Web Service នៅលើ Render
+   1. ចូលទៅកាន់ dashboard.render.com (https://dashboard.render.com)។
+   2. ចុចប៊ូតុង New + រួចជ្រើសរើស Blueprint (ព្រោះយើងមានឯកសារ render.yaml)។
+   3. ភ្ជាប់ជាមួយគណនី GitHub របស់អ្នក ហើយជ្រើសរើស Repository នៃគម្រោងនេះ។
+   4. Render នឹងអានឯកសារ render.yaml ហើយបង្ហាញព័ត៌មានដែលត្រូវបំពេញ។
+
+  ជំហានទី ៣៖ កំណត់ Environment Variables
+  នៅក្នុងផ្ទាំង Render អ្នកនឹងឃើញកន្លែងឱ្យបំពេញតម្លៃ (Values) សម្រាប់អថេរដែលយើងបានដាក់ក្នុង render.yaml៖
+
+   * GOOGLE_SCRIPT_URL: យក URL ដែលអ្នកទទួលបានពីការ Deploy Google Apps Script (ជំហានមុន)។
+   * TELEGRAM_API_ID និង TELEGRAM_API_HASH: យកពី my.telegram.org (https://my.telegram.org)។
+   * JWT_SECRET: បង្កើតពាក្យសម្ងាត់វែងៗមួយ (ឧទាហរណ៍៖ mY_Super_Secret_2026)។
+
+  ជំហានទី ៤៖ ចាប់ផ្ដើម Deploy
+   1. ចុច Approve ឬ Apply។
+   2. Render នឹងចាប់ផ្ដើមដំណើរការដូចខាងក្រោមដោយស្វ័យប្រវត្តិ៖
+       * npm install (ដំឡើង Libraries)
+       * npx prisma generate (រៀបចំ Database Client)
+       * npx prisma db push (បង្កើតតារាងក្នុង Database SQLite)
+       * npm run build (Build React និង Node.js Server)
+       * npm start (បើកដំណើរការ Server)
+
+  ចំណុចសំខាន់ដែលត្រូវដឹង (Important Notes)៖
+
+   1. SQLite Database:
+       * នៅលើ Render Free Plan, រាល់ពេលដែល Server សម្រាក (Sleep) ឬអ្នក Deploy ថ្មី ទិន្នន័យនៅក្នុង SQLite នឹងត្រូវបាត់បង់ (Reset)។
+       * ប៉ុន្តែដោយសារអ្នកប្រើ Google Sheet Service សម្រាប់រក្សាទុកគណនី និងសារ ដូច្នេះទិន្នន័យទាំងនោះនឹង មិនបាត់បង់ទេ ព្រោះវាស្ថិតនៅលើ Google Sheet។
+   2. Free Plan Sleep:
+       * ប្រសិនបើមិនមានអ្នកប្រើប្រាស់លើសពី ១៥ នាទី Render នឹងបិទ Server ជាបណ្ដោះអាសន្ន (Sleep)។ ពេលមានអ្នកចូលប្រើម្ដងទៀត វានឹងចំណាយពេលប្រហែល ៣០ វិនាទី ដើម្បីបើកឡើងវិញ។
+   3. Telegram Session:
+       * នៅពេលអ្នក Login Telegram Dashboard លើកដំបូង វានឹងបង្កើត Session។ ប្រសិនបើ Database SQLite ត្រូវ Reset អ្នកប្រហែលជាត្រូវ Login ម្ដងទៀត (លុះត្រាតែអ្នករក្សាទុក Session ក្នុង Google
+         Sheet ដែរ)។
+
+  តើអ្នកបាន Push កូដទៅ GitHub រួចរាល់ហើយឬនៅ? ប្រសិនបើនៅទេ ខ្ញុំអាចជួយប្រាប់ពីរបៀប Push បាន។
+
+
+
+
+
+
+
+  មូលហេតុដែលនាំឱ្យមាន Error នេះ គឺដោយសារ Render ព្យាយាមបើកឯកសារ electron-main.cjs (ដែលជាឯកសារសម្រាប់ Desktop App) ហើយវារកឯកសារនោះមិនឃើញ ឬមិនមែនជាឯកសារសម្រាប់ Web Server ឡើយ។
+
+  ដើម្បីដោះស្រាយ អ្នកត្រូវចូលទៅកែការកំណត់ (Settings) នៅក្នុង Render Dashboard ដោយផ្ទាល់៖
+
+  ១. កែប្រែ Build Command
+  ទៅកាន់ Settings > Build & Deploy រួចស្វែងរក Build Command ហើយប្ដូរវាទៅជា៖
+   1 npm install && npx prisma generate && npx prisma db push && npm run build
+  (ការធ្វើបែបនេះ ដើម្បីឱ្យវាបង្កើត Folder dist ដែលមានឯកសារ Server នៅក្នុងនោះ)
+
+  ២. កែប្រែ Start Command
+  ស្វែងរក Start Command ហើយប្ដូរពី node electron-main.cjs ទៅជា៖
+   1 npm start
+  (បញ្ជានេះនឹងទៅហៅ node dist/server.cjs ដែលយើងបាន Build រួច)
+
+  ៣. ពិនិត្យមើល Root Directory (បើចាំបាច់)
+  ប្រសិនបើកូដរបស់អ្នកស្ថិតនៅក្នុង Folder ណាមួយផ្សេង (ឧទាហរណ៍ server/) សូមប្រាកដថា Root Directory ក្នុង Render គឺនៅកន្លែងដែលមាន package.json។ បើកូដនៅខាងក្រៅស្រាប់ មិនបាច់ដូរទេ។
+
+  ហេតុអ្វីបានជាមាន Error មុននេះ?
+   * Build: Render គ្រាន់តែ Run yarn install តែវាមិនបាន build កូដសម្រាប់ដំណើរការលើ Web ទេ។
+   * Start: Render ស្មានថាឯកសារដើមគឺ electron-main.cjs (តាមរយៈ package.json) ទើបវាព្យាយាម Run ឯកសារនោះ ដែលនាំឱ្យរកមិនឃើញ (MODULE_NOT_FOUND)។
+
+  បន្ទាប់ពីអ្នកកែប្រែ Settings ទាំង ២ ខាងលើរួច សូមចុច "Manual Deploy" > "Clear Build Cache & Deploy" ម្ដងទៀត។ វានឹងដំណើរការបានជោគជ័យ!
+
+
+
+
+
+
+
+
+
+Error នេះមកពី Prisma រកមិនឃើញឯកសារ schema.prisma នៅក្នុង Folder prisma/ លើ GitHub របស់អ្នកទេ។
+
+  មូលហេតុដែលនាំឱ្យមាន Error នេះ៖
+  ១. អ្នកប្រហែលជាភ្លេច Push Folder prisma/ ទៅកាន់ GitHub។
+  ២. ឬនៅក្នុងឯកសារ .gitignore របស់អ្នកមានការទប់ស្កាត់ (Ignore) មិនឱ្យ Push Folder នេះ។
+
+  ជំហានដោះស្រាយ៖
+
+  ១. ពិនិត្យមើលឯកសារ .gitignore ក្នុងកុំព្យូទ័ររបស់អ្នក៖
+  បើកឯកសារ .gitignore ហើយរកមើលពាក្យ prisma/។ ប្រសិនបើឃើញពាក្យ prisma/ (ដោយគ្មាន .sqlite នៅពីក្រោយ) សូមលុបវាចេញ។ យើងត្រូវការតែ Ignore ឯកសារ Database ប៉ុណ្ណោះ មិនមែន Ignore Folder ទាំងមូលទេ។
+   * ត្រូវតែមាន៖ prisma/*.sqlite (Ignore តែទិន្នន័យ)
+   * មិនត្រូវមាន៖ prisma/ (កុំ Ignore Folder ទាំងមូល)
+
+  ២. Push កូដទៅ GitHub ម្ដងទៀត៖
+  បើក Terminal ក្នុងកុំព្យូទ័ររបស់អ្នក ហើយ Run បញ្ជាទាំងនេះ៖
+   1 git add prisma/schema.prisma
+   2 git commit -m "Add prisma schema"
+   3 git push origin main
+
+  ៣. បើកមើល GitHub របស់អ្នក៖
+  សូមចូលទៅកាន់ GitHub Repository នោះ ហើយពិនិត្យមើលថាតើមាន Folder ឈ្មោះ prisma និងឯកសារ schema.prisma នៅក្នុងនោះហើយឬនៅ?
+
+  ៤. Deploy ឡើងវិញលើ Render៖
+  បន្ទាប់ពីឃើញឯកសារលើ GitHub ហើយ សូមទៅកាន់ Render រួចចុច Manual Deploy > Clear Build Cache & Deploy។
+
+  ---
+
+  ដំណោះស្រាយបណ្ដោះអាសន្ន (ប្រសិនបើអ្នកមិនចង់ប្រើ Prisma លើ Render ភ្លាមៗ)៖
+  ដំណោះស្រាយបណ្ដោះអាសន្ន (ប្រសិនបើអ្នកមិនចង់ប្រើ Prisma លើ Render ភ្លាមៗ)៖
+  ដំណោះស្រាយបណ្ដោះអាសន្ន (ប្រសិនបើអ្នកមិនចង់ប្រើ Prisma លើ Render ភ្លាមៗ)៖
+  ប្រសិនបើអ្នកចង់ឱ្យវា Build ជោគជ័យសិន អ្នកអាចដក npx prisma generate && npx prisma db push ចេញពី Build Command ក្នុង Render ប៉ុន្តែវានឹងនាំឱ្យមាន Error ពេល Server ដើរ ព្រោះវារក Database
+  មិនឃើញ។ ដូច្នេះវិធីល្អបំផុតគឺ Push Folder prisma/ ទៅ GitHub។
+
+  តើអ្នកឃើញ Folder prisma នៅក្នុង GitHub របស់អ្នកដែរឬទេ?
+
+
+
+
+
+
+
+
+
+
+
+
+
+  Error នេះបណ្ដាលមកពី Render រកមិនឃើញអថេរ (Environment Variable) ឈ្មោះ DATABASE_URL នៅក្នុងការកំណត់របស់អ្នក។ ទោះបីជាយើងប្រើ SQLite ក៏ Prisma នៅតែត្រូវការអថេរនេះដើម្បីដឹងថាឯកសារ Database នៅកន្លែងណា។
+
+  ដើម្បីដោះស្រាយ សូមអនុវត្តតាមជំហានខាងក្រោម៖
+
+  ១. បន្ថែម DATABASE_URL ក្នុង Render Dashboard
+   1. ចូលទៅកាន់ Render Dashboard ហើយជ្រើសរើស Service របស់អ្នក។
+   2. ចុចលើ Menu Environment (នៅខាងឆ្វេង)។
+   3. ចុចប៊ូតុង Add Environment Variable។
+   4. បំពេញព័ត៌មាន៖
+       * Key: DATABASE_URL
+       * Value: file:./prisma/database.sqlite
+   5. ចុច Save Changes។
+
+  ២. ពិនិត្យអថេរផ្សេងៗទៀត (បើមិនទាន់មាន)
+  នៅក្នុងផ្ទាំង Environment ដដែល សូមប្រាកដថាអ្នកបានបន្ថែមអថេរចាំបាច់ទាំងនេះរួចរាល់ហើយ៖
+   * GOOGLE_SCRIPT_URL
+   * TELEGRAM_API_ID
+   * TELEGRAM_API_HASH
+   * JWT_SECRET
+
+  ៣. ចាប់ផ្ដើម Deploy ឡើងវិញ
+  បន្ទាប់ពី Save រួច Render នឹងចាប់ផ្ដើម Deploy ដោយស្វ័យប្រវត្តិ។ ប្រសិនបើវាមិនដំណើរការដោយស្វ័យប្រវត្តិទេ៖
+   1. ចុចលើប៊ូតុង Manual Deploy (នៅខាងលើបង្អស់)។
+   2. ជ្រើសរើស Clear Build Cache & Deploy។
+
+  ---
+
+  ហេតុអ្វីបានជាត្រូវការជំហាននេះ?
+  នៅក្នុងឯកសារ prisma/schema.prisma របស់អ្នក មានបន្ទាត់មួយសរសេរថា url = env("DATABASE_URL")។ នៅពេលអ្នក Run បញ្ជា npx prisma db push វានឹងទៅរកមើលក្នុង System ថាមាន DATABASE_URL
+  ឬអត់។ ប្រសិនបើគ្មាន វានឹងឈប់ដំណើរការ (Build failed) ដូចដែលអ្នកបានឃើញក្នុង Log នេះឯង។
+
+  តើអ្នកបានបន្ថែម DATABASE_URL រួចរាល់ហើយឬនៅ? ប្រសិនបើជួបបញ្ហាត្រង់ណាទៀត សូមប្រាប់ខ្ញុំ!
+
+
+
+
+
+
+
+
+
+
+Error នេះមានន័យថា Vite រកមិនឃើញឯកសារ index.html នៅក្នុងទីតាំងដែលវាត្រូវ Build នោះទេ។
+
+  ផ្អែកលើរចនាសម្ព័ន្ធឯកសាររបស់អ្នក ឯកសារ index.html គួរតែស្ថិតនៅខាងក្រៅបង្អស់ (Root Directory) ក្បែរ package.json។
+
+  មូលហេតុដែលអាចកើតមាន៖
+  ១. អ្នកមិនទាន់បាន Push ឯកសារ index.html ទៅកាន់ GitHub។
+  ២. ឬអ្នកបានដាក់ឯកសារ index.html នៅក្នុង Folder ផ្សេង (ដូចជា src/ หรือ public/) ប៉ុន្តែ Vite រំពឹងថាវានៅខាងក្រៅ។
+
+  ជំហានដោះស្រាយ៖
+
+  ១. ពិនិត្យមើល GitHub របស់អ្នក៖
+  សូមចូលទៅកាន់ GitHub Repository ហើយមើលថាតើមានឯកសារ index.html នៅខាងក្រៅបង្អស់ (Root) ដែរឬទេ? ប្រសិនបើគ្មានទេ សូម Push វាទៅ៖
+   1 git add index.html
+   2 git commit -m "Add index.html"
+   3 git push origin main
+
+  ២. ប្រសិនបើ index.html ស្ថិតក្នុង Folder ផ្សេង៖
+  ប្រសិនបើអ្នកចង់ឱ្យ index.html នៅក្នុង Folder ផ្សេង (ឧទាហរណ៍ src/) អ្នកត្រូវកែប្រែ vite.config.ts ដើម្បីប្រាប់ទីតាំងវា។ ប៉ុន្តែវិធីដែលងាយបំផុតគឺ ទុកវាឱ្យនៅក្បែរ package.json។
+
+  ៣. ពិនិត្យមើល vite.config.ts៖
+  ខ្ញុំនឹងជួយពិនិត្យមើលឯកសារ vite.config.ts របស់អ្នក ដើម្បីដឹងថាវាត្រូវបានកំណត់យ៉ាងដូចម្តេច។
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ ✓  ReadFile vite.config.ts                                                                                                                        │
+│                                                                                                                                                   │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+✦ តាមរយៈការពិនិត្យមើល vite.config.ts វាមិនមានការផ្លាស់ប្តូរទីតាំង root ទេ ដែលមានន័យថា Vite នឹងព្យាយាមស្វែងរក index.html នៅក្នុង Root Folder នៃគម្រោងរបស់អ្នក។
+
+  ដំណោះស្រាយបន្ទាន់៖
+  ១. សូមចូលទៅកាន់ GitHub របស់អ្នក ហើយប្រាកដថាឯកសារ index.html ស្ថិតនៅក្បែរ package.json។
+  ២. ប្រសិនបើវាស្ថិតនៅក្នុង Folder ផ្សេង (ឧទាហរណ៍ នៅក្នុង src/) សូមទាញវាចេញមកក្រៅវិញ។
+  ៣. បន្ទាប់មក Deploy ឡើងវិញលើ Render។
+
+  តើ index.html នៅក្នុង GitHub របស់អ្នកស្ថិតនៅទីណា? ប្រសិនបើអ្នកមិនច្បាស់ អ្នកអាចចម្លងរចនាសម្ព័ន្ធឯកសារ (File Structure) ពី GitHub មកឱ្យខ្ញុំមើលបាន។
+
+
+
+
+
+
+ក្នុងឯកសារ index.html អ្នកបានសរសេរថា <script type="module" src="/src/main.tsx"></script> ដែលជាការសរសេរត្រូវសម្រាប់ Vite ប៉ុន្តែ Error នេះប្រាប់ថា វារក /src/main.tsx មិនឃើញ។
+
+  ដំណោះស្រាយល្អបំផុត៖
+  ១. សូមចូលទៅកាន់ GitHub របស់អ្នក ហើយមើលក្នុង Folder src/។ តើក្នុងនោះមានឯកសារ main.tsx ហើយឬនៅ?
+  ២. ប្រសិនបើមាន សូមប្រាកដថាឈ្មោះវាគឺ main.tsx (អក្សរតូចទាំងអស់) មិនមែន Main.tsx ឬ main.ts (គ្មាន x)។
+  ៣. ប្រសិនបើអ្នកមិនទាន់បាន Push ទេ សូម Run បញ្ជានេះ៖
+
+   1 git add src/main.tsx
+   2 git commit -m "Add main.tsx"
+   3 git push origin main
+
+  មូលហេតុដែលវាកើតឡើង៖
+  ពេលខ្លះនៅក្នុងកុំព្យូទ័ររបស់អ្នក (Windows ឬ macOS) វាអាចដំណើរការបានទោះបីជាឈ្មោះអក្សរតូចធំខុសគ្នាបន្តិចបន្តួចក៏ដោយ ប៉ុន្តែនៅលើ Render (Linux) គឺវា តឹងរ៉ឹងបំផុត លើអក្សរតូចធំ (Case-sensitive)។
+
+  តើអ្នកឃើញឯកសារ main.tsx នៅក្នុង Folder src/ លើ GitHub របស់អ្នកដែរឬទេ?

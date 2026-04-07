@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@theme {
+  --color-binance-bg: #181a20;
+  --color-binance-panel: #1e2329;
+  --color-binance-card: #2b3139;
+  --color-binance-yellow: #fcd535;
+  --color-binance-yellow-hover: #f0c808;
+  --color-binance-text: #eaecef;
+  --color-binance-text-dim: #848e9c;
+  --color-binance-border: #2b3139;
+  --color-binance-green: #0ecb81;
+  --color-binance-red: #f6465d;
+}
+
+body {
+  background-color: var(--color-binance-bg);
+  color: var(--color-binance-text);
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-binance-bg); 
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-binance-card); 
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-binance-text-dim); 
+}
+
+/* Telegram-like UI Components */
+.message-bubble {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* Tail for Incoming (Left) */
+.message-bubble-tail-in::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: -8px;
+  width: 15px;
+  height: 15px;
+  background: inherit;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  border-bottom-left-radius: 4px;
+}
+
+/* Tail for Outgoing (Right) */
+.message-bubble-tail-out::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: -8px;
+  width: 15px;
+  height: 15px;
+  background: inherit;
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+  border-bottom-right-radius: 4px;
+}
+
+.unread-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: bold;
+  background-color: var(--color-binance-green);
+  color: #181a20;
+}
+
+.chat-input-pill {
+  flex: 1;
+  background-color: var(--color-binance-bg);
+  border: 1px solid var(--color-binance-border);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+}
+
+.chat-input-pill:focus-within {
+  border-color: var(--color-binance-yellow);
+}
+
+.chat-bg-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+  background-repeat: repeat;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+}

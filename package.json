@@ -1,0 +1,115 @@
+{
+  "name": "telegram-manual-dashboard",
+  "private": true,
+  "version": "0.0.0",
+  "description": "OTO Messages",
+  "author": "Antigravity",
+  "type": "module",
+  "main": "electron-main.cjs",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "build": "vite build && esbuild server.ts --platform=node --target=node18 --bundle --format=cjs --outfile=dist/server.cjs --external:sqlite3 --external:sharp --external:vite --external:fsevents --external:esbuild --external:lightningcss",
+    "start": "node dist/server.cjs",
+    "preview": "vite preview",
+    "electron:dev": "electron .",
+    "dist": "npm run build && electron-builder -w -c.npmRebuild=false",
+    "dist:mac": "npm run build && electron-builder -m",
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit"
+  },
+  "build": {
+    "appId": "com.telegram.manual.dashboard",
+    "productName": "Telegram Manual Dashboard",
+    "directories": {
+      "output": "release"
+    },
+    "npmRebuild": false,
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/sharp/**/*",
+      "**/node_modules/sqlite3/**/*",
+      "**/node_modules/fsevents/**/*",
+      "**/node_modules/ffmpeg-static/**/*",
+      "dist/server.cjs"
+    ],
+    "files": [
+      "dist/**/*",
+      "electron-main.cjs",
+      "package.json",
+      {
+        "from": "resources/win-x64/sqlite3",
+        "to": "node_modules/sqlite3",
+        "filter": [
+          "**/*"
+        ]
+      },
+      "node_modules/ffmpeg-static/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/favicon.ico"
+    }
+  },
+  "dependencies": {
+    "@google/genai": "^1.29.0",
+    "@tailwindcss/vite": "^4.1.14",
+    "@vitejs/plugin-react": "^5.0.4",
+    "axios": "^1.14.0",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
+    "cors": "^2.8.6",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.2.3",
+    "express": "^4.22.1",
+    "ffmpeg-static": "^5.3.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^0.546.0",
+    "motion": "^12.23.24",
+    "qrcode": "^1.5.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.14.0",
+    "sharp": "^0.34.5",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
+    "sqlite3": "^6.0.1",
+    "tailwind-merge": "^3.5.0",
+    "telegraf": "^4.16.3",
+    "telegram": "^2.26.22",
+    "vite": "^6.2.0"
+  },
+  "devDependencies": {
+    "@prisma/client": "^6.19.3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.25",
+    "@types/fluent-ffmpeg": "^2.1.28",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.14.0",
+    "@types/qrcode": "^1.5.6",
+    "@types/sqlite3": "^3.1.11",
+    "autoprefixer": "^10.4.21",
+    "electron": "^41.1.1",
+    "electron-builder": "^26.8.1",
+    "esbuild": "^0.28.0",
+    "prisma": "^6.19.3",
+    "tailwindcss": "^4.1.14",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  },
+  "optionalDependencies": {
+    "@img/sharp-linux-arm64": "^0.34.5",
+    "@img/sharp-linux-x64": "^0.34.5",
+    "@img/sharp-win32-arm64": "^0.34.5",
+    "@img/sharp-win32-x64": "^0.34.5"
+  }
+}

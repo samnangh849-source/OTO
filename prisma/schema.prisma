@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}
+
+model TgAccount {
+  id         String    @id
+  phone      String?
+  session    String
+  firstName  String?
+  lastName   String?
+  username   String?
+  photo      String?
+  status     String    @default("connected")
+  pts        Int?
+  date       Int?
+  messages   Message[]
+}
+
+model Message {
+  id                 Int       @id @default(autoincrement())
+  telegram_message_id Int
+  chat_id            String
+  sender_name        String?
+  sender_photo       String?
+  type               String
+  content            String    // This will now store a file path for media or text content
+  timestamp          DateTime  @default(now())
+  is_replied         Boolean   @default(false)
+  is_outgoing        Boolean   @default(false)
+  accountId          String?
+  account            TgAccount? @relation(fields: [accountId], references: [id])
+}
+
+model Template {
+  id      Int     @id @default(autoincrement())
+  name    String
+  type    String
+  content String
+  tags    String?
+}
+
+model Setting {
+  key   String @id
+  value String
+}
