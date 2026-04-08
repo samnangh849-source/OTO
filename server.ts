@@ -18,20 +18,28 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 const distPath = process.env.APP_DIST_PATH || path.join(process.cwd(), 'dist');
 
 async function startServer() {
-  await MediaService.ensureUploadsDir();
-
   const app = express();
   const httpServer = createServer(app);
   const io = new Server(httpServer, { cors: { origin: '*' } });
-  
+
+  // Listen immediately so Render knows the service is up
+  httpServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Server] Dashboard listening on port ${PORT}`);
+  });
+
+  await MediaService.ensureUploadsDir();
+
   app.use(cors());
   app.use(express.json({ limit: '100mb' }));
   
   // Serve uploads folder statically
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-  // Init Telegram
-  await TelegramService.init(io);
+  // Init Telegram (can take time, so we do it after listening)
+  console.log('[Server] Initializing Telegram Service...');
+  TelegramService.init(io).catch(err => {
+    console.error('[Server] Telegram Init Error:', err);
+  });
 
   // Setup Routes
   app.use('/api', authRoutes);
@@ -49,18 +57,6 @@ async function startServer() {
     app.use(express.static(distPath));
     app.get('*', (req, res) => res.sendFile(path.join(distPath, 'index.html')));
   }
-  
-  httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Server] Dashboard: http://localhost:${PORT}`);
-    const nets = networkInterfaces();
-    for (const name of Object.keys(nets)) {
-      for (const net of nets[name]!) {
-        if (net.family === 'IPv4' && !net.internal) {
-          console.log(`[Server] Mobile/Network: http://${net.address}:${PORT}`);
-        }
-      }
-    }
-  });
 }
 
 startServer();
