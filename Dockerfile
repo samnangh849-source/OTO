@@ -13,6 +13,10 @@ WORKDIR /app
 # Set environment to skip Electron binary download
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
 
+# Prisma needs this at build time sometimes
+ARG DATABASE_URL="file:./prisma/database.sqlite"
+ENV DATABASE_URL=$DATABASE_URL
+
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
@@ -32,6 +36,10 @@ FROM node:20-slim
 
 WORKDIR /app
 
+# We need the ENV in the production stage too
+ARG DATABASE_URL="file:./prisma/database.sqlite"
+ENV DATABASE_URL=$DATABASE_URL
+
 # Copy only built files and necessary production dependencies
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
@@ -43,5 +51,5 @@ RUN mkdir -p uploads/images uploads/videos uploads/voice
 
 EXPOSE 3000
 
-# Start the server with DB push
+# Start the server with DB push to ensure schema is ready
 CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm start"]
