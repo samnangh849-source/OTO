@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
+import socket from '../lib/socket';
 import { Key, ShieldCheck, Lock } from 'lucide-react';
 
 export default function Login() {
@@ -18,6 +19,10 @@ export default function Login() {
       const res = await api.post('/login-license', { licenseKey });
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('license_info', JSON.stringify(res.data.license));
+      
+      // Update socket auth and reconnect
+      socket.disconnect().connect();
+      
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid or expired License Key');

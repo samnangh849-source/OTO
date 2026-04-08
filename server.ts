@@ -1,10 +1,10 @@
+import 'dotenv/config';
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import path from 'path';
-import dotenv from 'dotenv';
 import { networkInterfaces } from 'os';
 import authRoutes from './src/api/routes/auth.js';
 import messageRoutes from './src/api/routes/messages.js';
@@ -13,8 +13,6 @@ import templateRoutes from './src/api/routes/templates.js';
 import { setupSockets } from './src/sockets/index.js';
 import { TelegramService } from './src/services/telegram.service.js';
 import { MediaService } from './src/services/media.service.js';
-
-dotenv.config();
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const distPath = process.env.APP_DIST_PATH || path.join(process.cwd(), 'dist');

@@ -1324,3 +1324,79 @@ Use these addresses to access the dashboard from other devices on your Wi-Fi.
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ✦ ៣. កែប្រែ render.yaml ឱ្យប្រើ Docker
   យើងត្រូវប្រាប់ Render ថា "កុំប្រើ Environment: Node" ទៀត តែឱ្យ "ប្រើ Docker" វិញ។
+
+
+  នៅអ្វីនៅពេលបើក link ដែល deploy ក្នុង Git hub ខ្ញុំមិនឃើញអ្វីអញ្ចឹង?
+
+
+
+  មូលហេតុដែលអ្នក "មិនឃើញអ្វីសោះ" (អាចជាទំព័រព័ណ៌ស ឬ Error) នៅពេលបើក Link ដែល Deploy នោះ អាចមកពីចំណុចសំខាន់ៗមួយចំនួន៖
+
+  ១. ការ Build មិនទាន់ចប់ (Deployment in Progress)
+  ដោយសារយើងទើបតែដូរទៅប្រើ Docker នោះ Render ត្រូវការពេល ៥ ទៅ ១០ នាទី ដើម្បីទាញយករបស់ចាំបាច់ និង Build កូដរបស់អ្នក។
+   * ដំណោះស្រាយ៖ សូមចូលទៅមើលក្នុង Render Dashboard ត្រង់ផ្នែក Events ឬ Logs។ ប្រសិនបើវានៅបង្ហាញថា Deploying... ឬ Building... មានន័យថាវាមិនទាន់ដើរទេ។
+     អ្នកត្រូវរង់ចាំទាល់តែវាបង្ហាញព័ណ៌បៃតងថា "Live"។
+
+  ២. បញ្ហាផ្លូវ (Path) របស់ Static Files ក្នុង server.ts
+  នៅក្នុង Dockerfile យើងបាន Build React ទៅក្នុង Folder dist។ ប្រសិនបើ Server មិនបានប្រាប់ឱ្យអាន File ពីក្នុងនោះទេ វានឹងបង្ហាញទំព័រទទេ (Blank Page)។
+   * សូមពិនិត្យមើល server.ts ត្រង់ផ្នែកចុងក្រោយ៖
+
+   1     if (process.env.NODE_ENV === 'production') {
+   2       app.use(express.static(path.join(process.cwd(), 'dist'))); // ត្រូវប្រាកដថាផ្លូវនេះត្រូវ
+   3       app.get('*', (req, res) => res.sendFile(path.join(process.cwd(), 'dist', 'index.html')));
+   4     }
+
+  ៣. អត់ទាន់បានបំពេញ Environment Variables
+  ប្រសិនបើអ្នកមិនទាន់បានបំពេញ TELEGRAM_API_ID ឬ JWT_SECRET នៅក្នុង Render Dashboard ទេ នោះ Server របស់អ្នកអាចនឹង Crash (គាំង) នៅពេលវាព្យាយាម Start។
+   * ដំណោះស្រាយ៖ ចូលទៅ Render -> Environment Tab រួចបំពេញរាល់ Key ទាំងអស់ដែលខ្ញុំបានប្រាប់ពីមុន។
+
+  ៤. កំពុងមើល Link ខុស
+   * Link GitHub: គឺគ្រាន់តែជាកូដ (Source Code) វាមិនអាចដើរជា App បានទេ។
+   * Link Render: គឺមានទម្រង់ដូចជា https://your-app-name.onrender.com។ អ្នកត្រូវប្រើ Link មួយនេះទើបឃើញ App របស់អ្នកដើរ។
+
+  តើអ្នកឃើញ Error អ្វីខ្លះ?
+   * ប្រសិនបើវាបង្ហាញថា "Internal Server Error"៖ មានន័យថាមានបញ្ហាកូដ Server (Node.js)។
+   * ប្រសិនបើវាបង្ហាញថា "404 Not Found"៖ មានន័យថា Render រកមិនឃើញ File index.html។
+   * ប្រសិនបើវាបង្ហាញថា "Site not found"៖ មានន័យថាការ Deploy មិនទាន់ជោគជ័យ។
+
+  យោបល់៖ សូមថតរូប (Screenshot) ឬចម្លង Log ពី Render មកឱ្យខ្ញុំមើល ខ្ញុំនឹងអាចដឹងភ្លាមថាវាខុសត្រង់ណា!
+
+
+
+
+
+
+
+
+
+
+
+
+
+   បញ្ហានេះកើតឡើងដោយសារ Render មិនទាន់ស្គាល់អថេរ (Environment Variable) ឈ្មោះ DATABASE_URL នៅក្នុងពេលដែលវា Build កូដ។ ម្យ៉ាងវិញទៀត តាមរយៈ Log របស់អ្នក ខ្ញុំឃើញថា Render នៅតែប្រើ
+  Node Environment ដដែល (មិនទាន់ដូរទៅប្រើ Docker តាម render.yaml ដែលខ្ញុំបានផ្ញើឱ្យទេ)។
+
+  ដើម្បីដោះស្រាយបញ្ហានេះ សូមអនុវត្តតាមជំហានខាងក្រោម៖
+
+  ១. បញ្ចូល Environment Variables ក្នុង Render Dashboard (សំខាន់បំផុត)
+  ទោះបីជាយើងមានក្នុង render.yaml ក៏ដោយ ប្រសិនបើអ្នកបង្កើត Service ដោយដៃ (Manual Web Service) អ្នកត្រូវតែបញ្ចូលវាទៅក្នុង Dashboard ផ្ទាល់៖
+   1. ចូលទៅកាន់ Render Dashboard -> ជ្រើសរើស Service របស់អ្នក។
+   2. ចុចលើ Menu Environment (នៅខាងឆ្វេង)។
+   3. ចុចលើ Add Environment Variable រួចបំពេញ៖
+       * Key: DATABASE_URL
+       * Value: file:./prisma/database.sqlite
+   4. ហើយកុំភ្លេចបំពេញ Key ផ្សេងៗទៀតដូចជា GOOGLE_SCRIPT_URL, TELEGRAM_API_ID, TELEGRAM_API_HASH, និង JWT_SECRET។
+   5. ចុច Save Changes។
+
+  ២. ប្តូរពី Node ទៅជា Docker (ក្នុង Settings)
+  ដោយសារយើងចង់ប្រើ Docker ដើម្បីឱ្យវាស្រាល និងដើរលឿន៖
+   1. ចូលទៅកាន់ Menu Settings ក្នុង Render។
+   2. រកមើលពាក្យ Runtime (ឬ Environment)។
+   3. ប្តូរវាពី Node ទៅជា Docker។
+   4. ចុច Save Changes។
+
+  ៣. ហេតុអ្វីបានជាវា Error?
+  Error P1012: Environment variable not found: DATABASE_URL គឺដោយសារ Prisma ត្រូវការដឹងថា Database នៅឯណា ទើបវាអាចដំណើរការបាន។ នៅពេល Render ព្យាយាម Build
+  តែរកមិនឃើញអថេរនេះ វាក៏ឈប់ (Failed) តែម្តង។
+
+  សង្ខេប៖ បញ្ហាមិនមែនមកពីកូដខុសទេ គឺមកពី Environment Variables មិនទាន់ត្រូវបានកំណត់ក្នុង Render Dashboard។ សូមបំពេញវា រួចចុច Manual Deploy ម្តងទៀត វានឹងដំណើរការបានជោគជ័យ!
