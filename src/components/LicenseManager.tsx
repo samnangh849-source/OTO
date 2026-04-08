@@ -254,7 +254,7 @@ export default function LicenseManager() {
                       </tr>
                     );
                   })
-                )}
+                }
               </tbody>
             </table>
           </div>
