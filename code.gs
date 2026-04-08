@@ -9,7 +9,8 @@ function setup() {
     { name: "Messages", headers: ["id", "telegramMessageId", "accountId", "senderId", "text", "timestamp", "type"] },
     { name: "Templates", headers: ["id", "title", "content", "category"] },
     { name: "Users", headers: ["id", "username", "password", "role"] },
-    { name: "Settings", headers: ["key", "value"] }
+    { name: "Settings", headers: ["key", "value"] },
+    { name: "Licenses", headers: ["key", "status", "expiry_date", "created_at", "note"] }
   ];
 
   sheetsToCreate.forEach(function(item) {
@@ -21,77 +22,82 @@ function setup() {
 
 /**
  * Google Apps Script សម្រាប់ភ្ជាប់ជាមួយ Telegram Manual Reply Dashboard
- * ប្រើសម្រាប់រក្សាទុកទិន្នន័យលើ Google Sheets
  */
 
 function doPost(e) {
   var result;
   try {
     var data = JSON.parse(e.postData.contents);
-    var action = data.action;
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     
-    // បង្កើត Sheets ប្រសិនបើមិនទាន់មាន
+    // បង្កើត Sheets ទាំងអស់ប្រសិនបើមិនទាន់មាន
     var sheets = {
       accounts: getOrCreateSheet(ss, "Accounts", ["id", "phoneNumber", "session", "name", "isActive"]),
       messages: getOrCreateSheet(ss, "Messages", ["id", "telegramMessageId", "accountId", "senderId", "text", "timestamp", "type"]),
       templates: getOrCreateSheet(ss, "Templates", ["id", "title", "content", "category"]),
       users: getOrCreateSheet(ss, "Users", ["id", "username", "password", "role"]),
-      settings: getOrCreateSheet(ss, "Settings", ["key", "value"])
+      settings: getOrCreateSheet(ss, "Settings", ["key", "value"]),
+      licenses: getOrCreateSheet(ss, "Licenses", ["key", "status", "expiry_date", "created_at", "note"])
     };
 
-    switch(action) {
-      // Account Operations
-      case 'get_accounts':
-        result = getRows(sheets.accounts);
-        break;
-      case 'save_account':
-        result = saveOrUpdate(sheets.accounts, data.account, "id");
-        break;
-      case 'delete_account':
-        result = deleteRow(sheets.accounts, data.id, "id");
-        break;
+    // Check if it's a License Action
+    if (data.type === 'license_action') {
+      result = handleLicenseAction(sheets.licenses, data.action, data);
+    } else {
+      var action = data.action;
+      switch(action) {
+        // Account Operations
+        case 'get_accounts':
+          result = getRows(sheets.accounts);
+          break;
+        case 'save_account':
+          result = saveOrUpdate(sheets.accounts, data.account, "id");
+          break;
+        case 'delete_account':
+          result = deleteRow(sheets.accounts, data.id, "id");
+          break;
 
-      // Message Operations
-      case 'get_messages':
-        result = getRows(sheets.messages);
-        break;
-      case 'save_message':
-        result = appendRow(sheets.messages, data.message);
-        break;
-      case 'find_message':
-        result = findRow(sheets.messages, "telegramMessageId", data.telegramMessageId);
-        break;
+        // Message Operations
+        case 'get_messages':
+          result = getRows(sheets.messages);
+          break;
+        case 'save_message':
+          result = appendRow(sheets.messages, data.message);
+          break;
+        case 'find_message':
+          result = findRow(sheets.messages, "telegramMessageId", data.telegramMessageId);
+          break;
 
-      // Template Operations
-      case 'get_templates':
-        result = getRows(sheets.templates);
-        break;
-      case 'save_template':
-        result = saveOrUpdate(sheets.templates, data.template, "id");
-        break;
-      case 'delete_template':
-        result = deleteRow(sheets.templates, data.id, "id");
-        break;
+        // Template Operations
+        case 'get_templates':
+          result = getRows(sheets.templates);
+          break;
+        case 'save_template':
+          result = saveOrUpdate(sheets.templates, data.template, "id");
+          break;
+        case 'delete_template':
+          result = deleteRow(sheets.templates, data.id, "id");
+          break;
 
-      // User Operations
-      case 'get_users':
-        result = getRows(sheets.users);
-        break;
-      case 'save_user':
-        result = saveOrUpdate(sheets.users, data.user, "id");
-        break;
+        // User Operations
+        case 'get_users':
+          result = getRows(sheets.users);
+          break;
+        case 'save_user':
+          result = saveOrUpdate(sheets.users, data.user, "id");
+          break;
 
-      // Setting Operations
-      case 'get_settings':
-        result = getRows(sheets.settings);
-        break;
-      case 'save_setting':
-        result = saveOrUpdate(sheets.settings, {key: data.key, value: data.value}, "key");
-        break;
+        // Setting Operations
+        case 'get_settings':
+          result = getRows(sheets.settings);
+          break;
+        case 'save_setting':
+          result = saveOrUpdate(sheets.settings, {key: data.key, value: data.value}, "key");
+          break;
 
-      default:
-        result = { error: "រកមិនឃើញ Action: " + action };
+        default:
+          result = { error: "រកមិនឃើញ Action: " + action };
+      }
     }
   } catch (error) {
     result = { error: error.toString() };
@@ -99,6 +105,58 @@ function doPost(e) {
 
   return ContentService.createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// --- License Management Logic ---
+
+function handleLicenseAction(sheet, action, data) {
+  var rows = getRows(sheet);
+  
+  if (action === 'create') {
+    // ពិនិត្យមើលថាតើ Key ជាន់គ្នាដែរឬទេ
+    var exists = rows.find(function(r) { return r.key === data.key; });
+    if (exists) return { success: false, message: 'License key រួចរាល់ហើយ' };
+    
+    appendRow(sheet, {
+      key: data.key,
+      status: 'active',
+      expiry_date: data.expiry_date,
+      created_at: new Date().toISOString(),
+      note: data.note || ''
+    });
+    return { success: true };
+  }
+  
+  if (action === 'validate') {
+    var license = rows.find(function(r) { return r.key === data.key; });
+    if (!license) return { success: false, message: 'License key មិនត្រឹមត្រូវទេ' };
+    if (license.status !== 'active') return { success: false, message: 'License key ត្រូវបានបិទ (Blocked)' };
+    
+    // Check expiry
+    var expiry = new Date(license.expiry_date);
+    var now = new Date();
+    if (expiry < now) {
+      // Auto update status to expired
+      saveOrUpdate(sheet, { key: license.key, status: 'expired', expiry_date: license.expiry_date, created_at: license.created_at, note: license.note }, "key");
+      return { success: false, message: 'License key ផុតកំណត់ហើយ' };
+    }
+    
+    return { success: true, license: license };
+  }
+  
+  if (action === 'list') {
+    return { success: true, licenses: rows };
+  }
+  
+  if (action === 'update_status') {
+    var license = rows.find(function(r) { return r.key === data.key; });
+    if (!license) return { success: false, message: 'រកមិនឃើញ License key' };
+    
+    license.status = data.status;
+    return saveOrUpdate(sheet, license, "key");
+  }
+  
+  return { success: false, message: 'Action មិនត្រឹមត្រូវសម្រាប់ License' };
 }
 
 // --- មុខងារជំនួយ (Helper Functions) ---

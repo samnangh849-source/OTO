@@ -1,30 +1,68 @@
 import express from 'express';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GoogleSheetService } from '../../services/googleSheet.service.js';
+import axios from 'axios';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin123', 10);
+const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
 
-router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  const users = await GoogleSheetService.getUsers() || [];
-  const user = users.find((u: any) => u.username === username);
+// Function to call Google Apps Script for License management
+async function callGAS(action: string, data: any = {}) {
+  if (!GOOGLE_SCRIPT_URL) return { success: false, error: 'GOOGLE_SCRIPT_URL not configured' };
+  try {
+    const response = await axios.post(GOOGLE_SCRIPT_URL, {
+      type: 'license_action',
+      action,
+      ...data
+    });
+    return response.data;
+  } catch (error) {
+    console.error('GAS Error:', error);
+    return { success: false, error: 'Failed to communicate with license server' };
+  }
+}
 
-  if (user && bcrypt.compareSync(password, user.password)) {
-    const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '24h' });
-    return res.json({ token });
-  } 
+// 1. User Login with License Key
+router.post('/login-license', async (req, res) => {
+  const { licenseKey } = req.body;
   
-  // Fallback to Env Admin
-  if (username === ADMIN_USERNAME && bcrypt.compareSync(password, ADMIN_PASSWORD_HASH)) {
-    const token = jwt.sign({ id: 0, username: ADMIN_USERNAME }, JWT_SECRET, { expiresIn: '24h' });
-    return res.json({ token });
+  if (!licenseKey) {
+    return res.status(400).json({ error: 'License Key is required' });
   }
 
-  res.status(401).json({ error: 'Authentication failed' });
+  // Check against Google Sheet
+  const result = await callGAS('validate', { key: licenseKey });
+
+  if (result && result.success) {
+    const token = jwt.sign(
+      { key: licenseKey, role: 'user', expiry: result.license.expiry }, 
+      JWT_SECRET, 
+      { expiresIn: '30d' } // Users stay logged in for 30 days
+    );
+    return res.json({ token, license: result.license });
+  }
+
+  res.status(401).json({ error: result.message || 'Invalid or Expired License Key' });
+});
+
+// 2. Admin License Management (Create/List/Block)
+// Note: In a real app, you'd protect these routes with an Admin Password or specific Header
+router.get('/admin/licenses', async (req, res) => {
+  const result = await callGAS('list');
+  res.json(result);
+});
+
+router.post('/admin/licenses/create', async (req, res) => {
+  const { key, expiry_date, note } = req.body;
+  const result = await callGAS('create', { key, expiry_date, note });
+  res.json(result);
+});
+
+router.post('/admin/licenses/status', async (req, res) => {
+  const { key, status } = req.body;
+  const result = await callGAS('update_status', { key, status });
+  res.json(result);
 });
 
 export default router;
