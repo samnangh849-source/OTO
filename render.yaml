@@ -1,10 +1,8 @@
 services:
   - type: web
     name: telegram-manual-dashboard
-    env: node
+    env: docker
     plan: free
-    buildCommand: npm install && npx prisma generate && npx prisma db push --accept-data-loss && npm run build
-    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -18,3 +16,5 @@ services:
         value: "ដាក់_API_HASH_ទីនេះ"
       - key: JWT_SECRET
         value: "បង្កើត_Secret_Key_ទីនេះ"
+      - key: PORT
+        value: "3000"

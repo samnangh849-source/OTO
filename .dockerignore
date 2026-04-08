@@ -1,0 +1,10 @@
+node_modules
+dist
+release
+win-x64
+.git
+.DS_Store
+.env
+prisma/database.sqlite
+uploads
+*.bak

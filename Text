@@ -1142,3 +1142,185 @@ Use these addresses to access the dashboard from other devices on your Wi-Fi.
   
   ហើយទិន្នន័យទាំងអស់ត្រូវរក្សារទុកផងដែរក្នុង Google Sheet តាមរយៈ App Script ហើយ Render មានអាចរក្សារទុកទិន្នន័យទៅក្នុង Google Sheet ហើយក៏អាច ទាញទិន្នន័យពី Google Sheet មកប្រើវិញ ដើម្បីក្នុងលក្ខខណ្ឌថា ប្រសិនបើ database.sqlite គឹប្រើបានធំបំផុត 200MB ចឹង Render អាចធ្វើការបែប Dynamic រក្សាទិន្នន័យចាស់ៗទៅទុកក្នុង Google Sheet ចាំពេលត្រូវការទើបទាញយកមក ហើយdatabase.sqlite ហាក់ដូចជា Ram ចឹងឯង
 
+បាទ/ចាស! ដើម្បីឱ្យការ Deploy ដើរបានស្រួល និងមិនគាំង (Hang) នៅត្រង់វគ្គ Build អ្នកគួរតែប្រើ Build Command ថ្មីដែលខ្ញុំបានកែប្រែក្នុង render.yaml រួចហើយ។
+
+  ប្រសិនបើអ្នកបានបង្កើត Service ក្នុង Render តាមរយៈការភ្ជាប់ជាមួយ GitHub (Blueprint/Render.yaml) នោះវាមានន័យថាវាបាន Update ដោយស្វ័យប្រវត្តិហើយ។ ប៉ុន្តែប្រសិនបើអ្នកបង្កើត Service
+  ដោយដៃ (Manual Service) ក្នុង Render Dashboard អ្នកគួរតែចូលទៅកែក្នុងផ្នែក Settings > Build Command ដូចខាងក្រោម៖
+
+  Build Command ដែលត្រូវប្រើ៖
+
+   1 npm install && npx prisma generate && npx prisma db push --accept-data-loss && npm run build
+
+  ហេតុអ្វីបានជាត្រូវកែ?
+   1. --accept-data-loss: នេះគឺជាចំណុចសំខាន់បំផុត។ ដោយសារអ្នកប្រើ SQLite ហើយគ្មាន Disk ជាប់លាប់ (No Persistent Disk) នោះ Prisma នឹងយល់ថាវាជា Database ថ្មីរហូត។ ប្រសិនបើគ្មាន
+      Flag នេះទេ Prisma នឹងឈប់រង់ចាំការបញ្ជាក់ (Confirm) ពីអ្នក ដែលធ្វើឱ្យ Render បង្ហាញថា "Awaiting build logs..." រហូតដល់ Time out។
+   2. npx prisma generate: ដើម្បីបង្កើត Prisma Client ឱ្យត្រូវតាម Schema ក្នុងពេល Build។
+   3. npm run build: ដើម្បី Compile Vite និង Server (Esbuild) ឱ្យទៅជា dist/។
+
+  សង្ខេប៖ បើអ្នកឃើញវានៅតែយូរ អ្នកគួរតែចូលទៅ Render Dashboard ប្តូរ Build Command ទៅជាកូដខាងលើ រួចចុច Manual Deploy > Clear Cache and Deploy វានឹងដំណើរការបានជោគជ័យ។
+
+
+
+   ប្រសិនបើវានៅតែបង្ហាញថា "Awaiting build logs..." យូរពេក (លើសពី ៥-១០ នាទី) វាអាចមកពីមូលហេតុបច្ចេកទេសរបស់ Render ឬទំហំនៃ dependencies របស់អ្នកធំពេក។
+
+  សូមអនុវត្តតាមជំហានដោះស្រាយខាងក្រោម៖
+
+  ១. ធ្វើការ Manual Deploy (Clear Cache)
+  ជួនកាល Render គាំងដោយសារ Cache ចាស់។ សូមចូលទៅកាន់៖
+   * Dashboard របស់អ្នកក្នុង Render។
+   * ចុចលើប៊ូតុង Manual Deploy (នៅខាងស្តាំលើ)។
+   * ជ្រើសរើសយក Clear build cache & deploy។
+   * រង់ចាំមើល Log ម្ដងទៀត។
+
+  ២. ពិនិត្យមើល "Events" Tab
+  ប្រសិនបើ Log មិនបង្ហាញទេ សូមចុចលើពាក្យ Events ក្នុង Menu ខាងឆ្វេងនៃ Render Dashboard៖
+   * តើវាបង្ហាញថា "Build started" ឬ "Build failed to start"?
+   * ប្រសិនបើវាបង្ហាញថា "Build failed to start" មានន័យថា Render មិនអាចរកម៉ាស៊ីនសម្រាប់ Build ឱ្យអ្នកបានទេ (Free Tier ជួនកាលរង់ចាំយូរ)។
+
+  ៣. បញ្ហាទំហំ Package (Electron)
+  គម្រោងរបស់អ្នកមាន Library Electron ដែលមានទំហំធំខ្លាំង (ជិត ១០០MB តែឯង)។ នៅលើ Free Plan ដែលមាន RAM ត្រឹម ៥១២MB៖
+   * ពេលវាធ្វើការ npm install វាត្រូវទាញយក Electron និង Library ធំៗផ្សេងទៀត ធ្វើឱ្យ CPU និង RAM របស់ Render ឡើងដល់កម្រិតកំណត់ (Limit)។
+   * ដំណោះស្រាយ៖ សាកល្បងប្រើ Build Command ឱ្យស្រាលជាងមុន (បន្ថយការ Check ផ្សេងៗ)៖
+   1     npm install --no-audit --no-fund && npx prisma generate && npx prisma db push --accept-data-loss && npm run build
+
+  ៤. ពិនិត្យ Environment Variables ក្នុង Dashboard
+  សូមប្រាកដថា អ្នកបានបំពេញតម្លៃ (Value) ពិតប្រាកដនៅក្នុង Environment tab របស់ Render Dashboard (មិនមែនទុកអក្សរខ្មែរ "ដាក់_URL_..." នោះទេ)៖
+   * GOOGLE_SCRIPT_URL
+   * TELEGRAM_API_ID
+   * TELEGRAM_API_HASH
+   * JWT_SECRET
+   * DATABASE_URL (ដាក់ថា file:./prisma/database.sqlite)
+
+  ៥. ប្រសិនបើនៅតែមិនដើរ (ជម្រើសចុងក្រោយ)
+  ប្រសិនបើវានៅតែ "Awaiting build logs..." លើសពី ៣០ នាទី៖
+   * Cancel ការ Deploy នោះ។
+   * Delete Service នោះចោល។
+   * Create New Service ឡើងវិញ (ពេលខ្លះ Render មានបញ្ហាលើ Instance មួយចំនួន)។
+
+  ចំណាំ៖ ដោយសារគម្រោងនេះជាប្រភេទ Desktop App (Electron) ផង និង Web Dashboard ផង វារាង "ធ្ងន់" សម្រាប់ Render Free Plan។ ប្រសិនបើអាច អ្នកគួរតែបំបែកកូដផ្នែក Server
+  ឱ្យនៅដាច់ដោយឡែក (គ្មាន Electron) ដើម្បីឱ្យការ Deploy លើ Render លឿន និងស្រាល។
+
+
+
+
+   ការបំបែកកូដផ្នែក Server ឱ្យនៅដាច់ដោយឡែកពី Electron (Desktop) គឺជាការសម្រេចចិត្តដ៏ល្អបំផុតសម្រាប់គម្រោងដែលត្រូវ Deploy លើ Cloud ដូចជា Render។ វាជួយឲ្យ៖
+   * Build លឿនជាងមុន៖ មិនចាំបាច់ទាញយក Electron (ដែលធ្ងន់ខ្លាំង)។
+   * ប្រើ RAM តិច៖ ស័ក្តិសមជាមួយ Free Plan (512MB)។
+   * ងាយស្រួលថែទាំ៖ Server ដើរតួជា API រួមមួយសម្រាប់ទាំង Web និង Desktop App។
+
+  នេះជាវិធីសាស្រ្តដែលអ្នកអាចធ្វើបាន៖
+
+  ១. បង្កើត Folder ថ្មីសម្រាប់តែ Server (ជម្រើសល្អបំផុត)
+  អ្នកអាចបង្កើត Folder ថ្មីមួយ (ឧទាហរណ៍៖ telegram-dashboard-server) ហើយចម្លងយកតែ File ចាំបាច់សម្រាប់ Server៖
+   * Files: server.ts, prisma/, src/, index.html, vite.config.ts, tsconfig.json.
+   * លុបចេញ: electron-main.cjs, release/, win-x64/ និង Folder ផ្សេងៗដែលទាក់ទងនឹង Desktop។
+
+  ២. កែសម្រួល package.json (ដើម្បីឲ្យស្រាលបំផុត)
+  នៅក្នុង Server ថ្មីនេះ អ្នកត្រូវលុប electron និង electron-builder ចេញពី devDependencies។ វានឹងធ្វើឱ្យ npm install ប្រើពេលខ្លី និងមិនចំណាយ RAM ច្រើន។
+
+  ៣. ប្រើល្បិច "Skip Electron" ក្នុង Render (បើមិនចង់បំបែក Folder)
+  ប្រសិនបើអ្នកមិនចង់បំបែក Folder ទេ អ្នកអាចកែ render.yaml ដើម្បីប្រាប់ Render ថាកុំឱ្យទាញយក Electron binary ក្នុងពេល Build (វានឹងជួយឱ្យវាដើរលឿន និងមិនគាំង)៖
+
+  កែ render.yaml ត្រង់ Build Command:
+
+   1 buildCommand: export ELECTRON_SKIP_BINARY_DOWNLOAD=1 && npm install --no-audit && npx prisma generate && npx prisma db push
+     --accept-data-loss && npm run build
+
+  ៤. ផ្លាស់ប្តូរការដំឡើង SQLite
+  ដោយសារអ្នកប្រើ Free Plan គ្មាន Disk ជាប់លាប់៖
+   * Database: គួរប្រើ Supabase (PostgreSQL) ឬ MongoDB Atlas (Free) ជំនួស SQLite។ វានឹងធ្វើឱ្យ Server របស់អ្នកស្រាលជាងមុន ព្រោះមិនបាច់ចាត់ចែង File database ក្នុង
+     Server ផ្ទាល់។
+
+  ---
+
+  តើអ្នកចង់ឱ្យខ្ញុំជួយបំបែកកូដនេះដោយរបៀបណា?
+   1. ជួយរៀបចំ package.json ថ្មី សម្រាប់តែ Server?
+   2. ជួយបង្កើត Dockerfile (វិធីនេះល្អបំផុតសម្រាប់ Render ព្រោះយើងអាចកំណត់មិនឲ្យដំឡើង Electron បានយ៉ាងច្បាស់លាស់)?
+   3. ជួយកែសម្រួល render.yaml តាមវិធី "Skip Electron" ខាងលើ?
+
+  យោបល់របស់ខ្ញុំ៖ អ្នកគួរប្រើ ជម្រើសទី ២ (Dockerfile) ព្រោះវាជាស្តង់ដារបច្ចេកទេសដែលធ្វើឲ្យ Server ដើរបានស្រួលបំផុតលើ Render Free Plan ដោយមិនបាច់បំបែក Folder គម្រោងរបស់អ្នក។
+  តើអ្នកចង់សាកល្បងវិធីនេះទេ?
+
+
+
+
+
+
+  ការប្រើប្រាស់ Dockerfile គឺជាវិធីសាស្ត្រដ៏ល្អបំផុត ព្រោះវានឹងជួយឱ្យ Render បង្កើត "កុងតឺន័រ" (Container) មួយដែលមានតែរបស់ចាំបាច់សម្រាប់ Server ហើយវានឹង Skip (រំលង) រាល់អ្វីៗដែលទាក់ទងនឹង
+  Electron ដែលធ្ងន់ៗចេញទាំងអស់។
+
+  ខ្ញុំនឹងបង្កើត File ចំនួន ២ និងកែប្រែ render.yaml មួយ៖
+
+  ១. បង្កើត File Dockerfile
+  File នេះនឹងប្រាប់ Render ឱ្យដំឡើងតែ Library ចាំបាច់ និង Build កូដរបស់អ្នកឱ្យស្រាលបំផុត។
+
+╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ ✓  WriteFile Writing to Dockerfile                                                                                               │
+│                                                                                                                                  │
+│  1 # Use Node.js 20 as base image                                                                                                │
+│  2 FROM node:20-slim AS builder                                                                                                  │
+│  3                                                                                                                               │
+│  4 # Install build dependencies for native modules (sqlite3, sharp)                                                              │
+│  5 RUN apt-get update && apt-get install -y \                                                                                    │
+│  6     python3 \                                                                                                                 │
+│  7     make \                                                                                                                    │
+│  8     g++ \                                                                                                                     │
+│  9     && rm -rf /var/lib/apt/lists/*                                                                                            │
+│ 10                                                                                                                               │
+│ 11 WORKDIR /app                                                                                                                  │
+│ 12                                                                                                                               │
+│ 13 # Set environment to skip Electron binary download                                                                            │
+│ 14 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1                                                                                           │
+│ 15                                                                                                                               │
+│ 16 # Copy package files                                                                                                          │
+│ 17 COPY package*.json ./                                                                                                         │
+│ 18 COPY prisma ./prisma/                                                                                                         │
+│ 19                                                                                                                               │
+│ 20 # Install all dependencies (including devDeps for build)                                                                      │
+│ 21 RUN npm install                                                                                                               │
+│ 22                                                                                                                               │
+│ 23 # Copy source code                                                                                                            │
+│ 24 COPY . .                                                                                                                      │
+│ 25                                                                                                                               │
+│ 26 # Generate Prisma client and build the app                                                                                    │
+│ 27 RUN npx prisma generate                                                                                                       │
+│ 28 RUN npm run build                                                                                                             │
+│ 29                                                                                                                               │
+│ 30 # --- Production Stage ---                                                                                                    │
+│ 31 FROM node:20-slim                                                                                                             │
+│ 32                                                                                                                               │
+│ 33 WORKDIR /app                                                                                                                  │
+│ 34                                                                                                                               │
+│ 35 # Copy only built files and necessary production dependencies                                                                 │
+│ 36 COPY --from=builder /app/dist ./dist                                                                                          │
+│ 37 COPY --from=builder /app/package*.json ./                                                                                     │
+│ 38 COPY --from=builder /app/prisma ./prisma                                                                                      │
+│ 39 COPY --from=builder /app/node_modules ./node_modules                                                                          │
+│ 40                                                                                                                               │
+│ 41 # Ensure uploads directory exists (ephemeral)                                                                                 │
+│ 42 RUN mkdir -p uploads/images uploads/videos uploads/voice                                                                      │
+│ 43                                                                                                                               │
+│ 44 EXPOSE 3000                                                                                                                   │
+│ 45                                                                                                                               │
+│ 46 # Start the server                                                                                                            │
+│ 47 CMD ["npm", "start"]                                                                                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+✦ ២. បង្កើត File .dockerignore
+  File នេះប្រាប់ Render ថា "កុំឱ្យចម្លង" File ធំៗដែលមិនចាំបាច់ (ដូចជា node_modules ក្នុងម៉ាស៊ីនអ្នក) ចូលក្នុង Docker ឡើយ ដើម្បីឱ្យការ Build លឿនបំផុត។
+
+╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ ✓  WriteFile Writing to .dockerignore                                                                                            │
+│                                                                                                                                  │
+│  1 node_modules                                                                                                                  │
+│  2 dist                                                                                                                          │
+│  3 release                                                                                                                       │
+│  4 win-x64                                                                                                                       │
+│  5 .git                                                                                                                          │
+│  6 .DS_Store                                                                                                                     │
+│  7 .env                                                                                                                          │
+│  8 prisma/database.sqlite                                                                                                        │
+│  9 uploads                                                                                                                       │
+│ 10 *.bak                                                                                                                         │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+✦ ៣. កែប្រែ render.yaml ឱ្យប្រើ Docker
+  យើងត្រូវប្រាប់ Render ថា "កុំប្រើ Environment: Node" ទៀត តែឱ្យ "ប្រើ Docker" វិញ។
