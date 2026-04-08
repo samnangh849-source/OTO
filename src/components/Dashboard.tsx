@@ -501,7 +501,7 @@ export default function Dashboard() {
   const getAccountUnread = (accountId: string) => unreadCountsByAccount[accountId] || 0;
 
   const filteredConversations = conversations.filter((c: Conversation) => 
-    c.sender_name.toLowerCase().includes(searchQuery.toLowerCase())
+    (c.sender_name || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
