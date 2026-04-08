@@ -599,7 +599,7 @@ export default function Dashboard() {
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold shadow-sm transition-colors ${
                             isActive ? 'bg-binance-yellow text-[#181a20]' : 'bg-binance-panel text-binance-text-dim group-hover:bg-binance-card'
                           }`}>
-                            {chat.sender_name[0]}
+                            {(chat.sender_name || '?')[0]}
                           </div>
                         )}
                         {userStatuses[chat.chat_id] === 'online' && (
@@ -818,7 +818,7 @@ export default function Dashboard() {
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-binance-card text-binance-yellow flex items-center justify-center font-bold text-lg">
-                            {activeChat.sender_name[0]}
+                            {(activeChat.sender_name || '?')[0]}
                           </div>
                         )}
                         {userStatuses[activeChat.chat_id] === 'online' && (
