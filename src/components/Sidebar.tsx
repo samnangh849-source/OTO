@@ -1,10 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { MessageSquare, LayoutTemplate, LogOut, Unplug, Activity, Settings as SettingsIcon } from 'lucide-react';
+import { MessageSquare, LayoutTemplate, LogOut, Unplug, Activity, Settings as SettingsIcon, KeyRound } from 'lucide-react';
 import socket from '../lib/socket';
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    try {
+      const infoStr = localStorage.getItem('license_info');
+      if (infoStr) {
+        const info = JSON.parse(infoStr);
+        if (info.note && info.note.toLowerCase().includes('admin')) {
+          setIsAdmin(true);
+        } else if (info.key === 'OTO-ADMIN-MASTER') {
+            setIsAdmin(true);
+        }
+      }
+    } catch (e) {}
+  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -67,6 +82,21 @@ export default function Sidebar() {
           <SettingsIcon size={18} />
           Settings
         </NavLink>
+        {isAdmin && (
+          <NavLink
+            to="/licenses"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors border-l-4 ${
+                isActive 
+                  ? 'bg-binance-card text-binance-yellow border-binance-yellow' 
+                  : 'border-transparent text-binance-text-dim hover:bg-binance-card hover:text-binance-text'
+              }`
+            }
+          >
+            <KeyRound size={18} />
+            License Manager
+          </NavLink>
+        )}
       </nav>
 
       <div className="p-4 border-t border-binance-border space-y-2">

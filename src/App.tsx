@@ -10,6 +10,7 @@ import Dashboard from './components/Dashboard';
 import TemplateManager from './components/TemplateManager';
 import Login from './components/Login';
 import Settings from './components/Settings';
+import LicenseManager from './components/LicenseManager';
 import MobileDashboard from './components/mobile/MobileDashboard';
 import { useMobile } from './hooks/useMobile';
 
@@ -73,6 +74,16 @@ export default function App() {
             <PrivateRoute>
               <Layout>
                 <Settings />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/licenses"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <LicenseManager />
               </Layout>
             </PrivateRoute>
           }
