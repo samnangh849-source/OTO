@@ -43,5 +43,5 @@ RUN mkdir -p uploads/images uploads/videos uploads/voice
 
 EXPOSE 3000
 
-# Start the server
-CMD ["npm", "start"]
+# Start the server with DB push
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm start"]
