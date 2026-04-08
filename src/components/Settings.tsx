@@ -260,7 +260,7 @@ export default function Settings() {
                     </div>
                   )}
                   <div>
-                    <p className="text-sm font-bold text-binance-text">{acc.first_name} {acc.last_name}</p>
+                    <p className="text-sm font-bold text-binance-text">{acc.firstName || acc.first_name} {acc.lastName || acc.last_name}</p>
                     <p className="text-[10px] text-binance-green font-medium">+{acc.phone}</p>
                   </div>
                 </div>

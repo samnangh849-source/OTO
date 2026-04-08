@@ -40,7 +40,7 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showTemplates, setShowTemplates] = useState(false);
   const [view, setView] = useState<'chat' | 'stats'>('chat');
-  const [accounts, setAccounts] = useState<Array<{ id: string; phone: string; first_name?: string; username?: string; status?: string }>>([]);
+  const [accounts, setAccounts] = useState<Array<{ id: string; phone: string; firstName?: string; first_name?: string; lastName?: string; last_name?: string; username?: string; status?: string }>>([]);
   const [activeAccountId, setActiveAccountId] = useState<string | null>(null);
   const [unreadCountsByAccount, setUnreadCountsByAccount] = useState<Record<string, number>>({});
   const [recentMessageTimestamps, setRecentMessageTimestamps] = useState<number[]>([]);
@@ -520,7 +520,8 @@ export default function Dashboard() {
                 <option value="">All accounts {totalUnread > 0 ? `(${totalUnread} unread)` : ''}</option>
                 {accounts.map(ac => {
                   const unread = getAccountUnread(ac.id);
-                  return <option key={ac.id} value={ac.id}>{ac.first_name || ac.username || ac.phone || ac.id}{unread > 0 ? ` (${unread} unread)` : ''}</option>;
+                  const displayName = ac.firstName || ac.first_name || ac.username || ac.phone || ac.id;
+                  return <option key={ac.id} value={ac.id}>{displayName}{unread > 0 ? ` (${unread} unread)` : ''}</option>;
                 })}
               </select>
               <span className={`w-2 h-2 rounded-full ${telegramStatus === 'connected' ? 'bg-binance-green' : 'bg-binance-red'}`} />
@@ -611,7 +612,10 @@ export default function Dashboard() {
                           <div className="min-w-0">
                             <span className={`text-sm font-semibold truncate ${isActive ? 'text-white' : 'text-binance-text'}`}>{chat.sender_name}</span>
                             <p className="text-[10px] text-binance-text-dim truncate max-w-[80%]">
-                              {chat.accountId ? (accounts.find(a => a.id === chat.accountId)?.username || accounts.find(a => a.id === chat.accountId)?.phone || 'Linked') : 'No account'}
+                              {chat.accountId ? (() => {
+                                const acc = accounts.find(a => a.id === chat.accountId);
+                                return acc ? (acc.username || acc.firstName || acc.first_name || acc.phone || 'Linked') : 'Linked';
+                              })() : 'No account'}
                             </p>
                           </div>
                           <span className="text-[10px] text-binance-text-dim whitespace-nowrap">
