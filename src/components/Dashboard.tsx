@@ -398,6 +398,10 @@ export default function Dashboard() {
   const visibleMessages = activeAccountId ? allVisibleMessages.filter(m => m.accountId === activeAccountId) : allVisibleMessages;
 
   const conversations = Object.values<Conversation>(visibleMessages.reduce((acc, msg) => {
+    if (!msg.chat_id) return acc;
+    
+    const msgTime = msg.timestamp ? new Date(msg.timestamp).getTime() : 0;
+
     if (!acc[msg.chat_id]) {
       acc[msg.chat_id] = {
         chat_id: msg.chat_id,
@@ -407,7 +411,8 @@ export default function Dashboard() {
         accountId: msg.accountId
       };
     } else {
-      if (new Date(msg.timestamp) > new Date(acc[msg.chat_id].last_message.timestamp)) {
+      const lastMsgTime = acc[msg.chat_id].last_message.timestamp ? new Date(acc[msg.chat_id].last_message.timestamp).getTime() : 0;
+      if (msgTime > lastMsgTime) {
         acc[msg.chat_id].last_message = msg;
         if (!msg.is_outgoing && msg.sender_name && msg.sender_name !== 'Me') {
           acc[msg.chat_id].sender_name = msg.sender_name;
@@ -422,7 +427,11 @@ export default function Dashboard() {
     }
 
     return acc;
-  }, {} as Record<string, Conversation>)).sort((a, b) => new Date(b.last_message.timestamp).getTime() - new Date(a.last_message.timestamp).getTime());
+  }, {} as Record<string, Conversation>)).sort((a, b) => {
+    const timeA = a.last_message.timestamp ? new Date(a.last_message.timestamp).getTime() : 0;
+    const timeB = b.last_message.timestamp ? new Date(b.last_message.timestamp).getTime() : 0;
+    return timeB - timeA;
+  });
 
   const activeChat = React.useMemo(() => 
     selectedChatId ? conversations.find(c => c.chat_id === selectedChatId) : null
