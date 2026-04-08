@@ -3,7 +3,7 @@ import { TelegramClient } from 'telegram';
 import { StringSession } from 'telegram/sessions/index.js';
 import QRCode from 'qrcode';
 import { TelegramService } from '../services/telegram.service.js';
-import prisma from '../db/client.js';
+import { GoogleSheetService } from '../services/googleSheet.service.js';
 
 const TELEGRAM_API_ID = parseInt(process.env.TELEGRAM_API_ID || '0');
 const TELEGRAM_API_HASH = process.env.TELEGRAM_API_HASH || '';
@@ -14,7 +14,7 @@ export function setupSockets(io: Server) {
     let activeAuthClient: TelegramClient | null = null;
 
     socket.on('check_telegram_status', async () => {
-      const accounts = await prisma.tgAccount.findMany();
+      const accounts = await GoogleSheetService.getAccounts() || [];
       socket.emit('tg_accounts_list', accounts);
       socket.emit('tg_status', { status: accounts.length > 0 ? 'connected' : 'disconnected' });
     });
@@ -79,7 +79,7 @@ export function setupSockets(io: Server) {
     socket.on('logout_telegram', async (accountId?: string) => {
       try {
         await TelegramService.logout(accountId);
-        const accounts = await prisma.tgAccount.findMany();
+        const accounts = await GoogleSheetService.getAccounts() || [];
         socket.emit('tg_accounts_list', accounts);
         socket.emit('tg_status', { status: accounts.length > 0 ? 'connected' : 'disconnected' });
       } catch (err: any) {
