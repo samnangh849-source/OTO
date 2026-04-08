@@ -5,8 +5,8 @@ function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   
   var sheetsToCreate = [
-    { name: "Accounts", headers: ["id", "phoneNumber", "session", "name", "isActive"] },
-    { name: "Messages", headers: ["id", "telegramMessageId", "accountId", "senderId", "text", "timestamp", "type"] },
+    { name: "Accounts", headers: ["id", "phone", "session", "firstName", "lastName", "username", "photo", "pts", "date", "isActive"] },
+    { name: "Messages", headers: ["id", "telegram_message_id", "chat_id", "sender_name", "sender_photo", "type", "content", "is_outgoing", "accountId", "timestamp", "is_replied"] },
     { name: "Templates", headers: ["id", "title", "content", "category"] },
     { name: "Users", headers: ["id", "username", "password", "role"] },
     { name: "Settings", headers: ["key", "value"] },
@@ -32,8 +32,8 @@ function doPost(e) {
     
     // បង្កើត Sheets ទាំងអស់ប្រសិនបើមិនទាន់មាន
     var sheets = {
-      accounts: getOrCreateSheet(ss, "Accounts", ["id", "phoneNumber", "session", "name", "isActive"]),
-      messages: getOrCreateSheet(ss, "Messages", ["id", "telegramMessageId", "accountId", "senderId", "text", "timestamp", "type"]),
+      accounts: getOrCreateSheet(ss, "Accounts", ["id", "phone", "session", "firstName", "lastName", "username", "photo", "pts", "date", "isActive"]),
+      messages: getOrCreateSheet(ss, "Messages", ["id", "telegram_message_id", "chat_id", "sender_name", "sender_photo", "type", "content", "is_outgoing", "accountId", "timestamp", "is_replied"]),
       templates: getOrCreateSheet(ss, "Templates", ["id", "title", "content", "category"]),
       users: getOrCreateSheet(ss, "Users", ["id", "username", "password", "role"]),
       settings: getOrCreateSheet(ss, "Settings", ["key", "value"]),
@@ -62,10 +62,10 @@ function doPost(e) {
           result = getRows(sheets.messages);
           break;
         case 'save_message':
-          result = appendRow(sheets.messages, data.message);
+          result = saveOrUpdate(sheets.messages, data.message, "telegram_message_id");
           break;
         case 'find_message':
-          result = findRow(sheets.messages, "telegramMessageId", data.telegramMessageId);
+          result = findRow(sheets.messages, "telegram_message_id", data.telegramMessageId);
           break;
 
         // Template Operations
@@ -113,7 +113,6 @@ function handleLicenseAction(sheet, action, data) {
   var rows = getRows(sheet);
   
   if (action === 'create') {
-    // ពិនិត្យមើលថាតើ Key ជាន់គ្នាដែរឬទេ
     var exists = rows.find(function(r) { return r.key === data.key; });
     if (exists) return { success: false, message: 'License key រួចរាល់ហើយ' };
     
@@ -132,11 +131,9 @@ function handleLicenseAction(sheet, action, data) {
     if (!license) return { success: false, message: 'License key មិនត្រឹមត្រូវទេ' };
     if (license.status !== 'active') return { success: false, message: 'License key ត្រូវបានបិទ (Blocked)' };
     
-    // Check expiry
     var expiry = new Date(license.expiry_date);
     var now = new Date();
     if (expiry < now) {
-      // Auto update status to expired
       saveOrUpdate(sheet, { key: license.key, status: 'expired', expiry_date: license.expiry_date, created_at: license.created_at, note: license.note }, "key");
       return { success: false, message: 'License key ផុតកំណត់ហើយ' };
     }
