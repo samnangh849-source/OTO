@@ -56,20 +56,21 @@ export class TelegramService {
   }
 
   static async syncAll(io: Server) {
+    // Refresh account info from sheet first to get latest pts/date
     const accounts = await GoogleSheetService.getAccounts() || [];
     for (const account of accounts) {
       const client = this.clients.get(account.id);
       if (!client) continue;
 
+      console.log(`[Sync] Starting sync for ${account.phone || account.id}`);
+
       if (account.pts && account.date) {
         await this.syncUpdates(client, account.id, account.pts, account.date, io);
       } else {
-        // Check Last Data fallback
-        const lastMessage = await GoogleSheetService.findLastMessage(account.id);
-        if (lastMessage) {
-          const lastDate = Math.floor(new Date(lastMessage.timestamp).getTime() / 1000);
-          await this.syncHistoryByDate(client, account.id, lastDate, io);
-        }
+        // Fallback: Sync last 24 hours if no state found
+        console.log(`[Sync] No state for ${account.id}, falling back to 24h history sync`);
+        const oneDayAgo = Math.floor(Date.now() / 1000) - (24 * 60 * 60);
+        await this.syncHistoryByDate(client, account.id, oneDayAgo, io);
       }
     }
   }
