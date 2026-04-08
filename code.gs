@@ -7,7 +7,7 @@ function setup() {
   var sheetsToCreate = [
     { name: "Accounts", headers: ["id", "phone", "session", "firstName", "lastName", "username", "photo", "pts", "date", "isActive", "licenseKey"] },
     { name: "Messages", headers: ["id", "telegramMessageId", "senderId", "senderName", "senderPhoto", "type", "text", "isOutgoing", "accountId", "timestamp", "isReplied", "licenseKey"] },
-    { name: "Templates", headers: ["id", "title", "content", "category", "licenseKey"] },
+    { name: "Templates", headers: ["id", "name", "content", "type", "tags", "licenseKey"] },
     { name: "Users", headers: ["id", "username", "password", "role"] },
     { name: "Settings", headers: ["key", "value", "licenseKey"] },
     { name: "Licenses", headers: ["key", "status", "expiry_date", "created_at", "note"] }
@@ -34,7 +34,7 @@ function doPost(e) {
     var sheets = {
       accounts: getOrCreateSheet(ss, "Accounts", ["id", "phone", "session", "firstName", "lastName", "username", "photo", "pts", "date", "isActive", "licenseKey"]),
       messages: getOrCreateSheet(ss, "Messages", ["id", "telegramMessageId", "senderId", "senderName", "senderPhoto", "type", "text", "isOutgoing", "accountId", "timestamp", "isReplied", "licenseKey"]),
-      templates: getOrCreateSheet(ss, "Templates", ["id", "title", "content", "category", "licenseKey"]),
+      templates: getOrCreateSheet(ss, "Templates", ["id", "name", "content", "type", "tags", "licenseKey"]),
       settings: getOrCreateSheet(ss, "Settings", ["key", "value", "licenseKey"]),
       licenses: getOrCreateSheet(ss, "Licenses", ["key", "status", "expiry_date", "created_at", "note"])
     };

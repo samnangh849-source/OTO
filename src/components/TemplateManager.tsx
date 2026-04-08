@@ -546,9 +546,13 @@ export default function TemplateManager() {
               )}
             </div>
             
-            {template.tags && (
+            {template.tags && typeof template.tags === 'string' && (
               <div className="flex flex-wrap gap-1.5 pt-4 mt-4 border-t border-binance-border">
-                {template.tags.split(',').map((tag, i) => <span key={i} className="text-[10px] text-binance-text bg-binance-card px-1.5 py-0.5 rounded border border-binance-border">#{tag.trim()}</span>)}
+                {template.tags.split(',').filter(t => t.trim()).map((tag, i) => (
+                  <span key={i} className="text-[10px] text-binance-text bg-binance-card px-1.5 py-0.5 rounded border border-binance-border">
+                    #{tag.trim()}
+                  </span>
+                ))}
               </div>
             )}
           </div>
