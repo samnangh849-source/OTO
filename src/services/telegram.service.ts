@@ -132,7 +132,7 @@ export class TelegramService {
   private static async downloadMediaInBackground(client: TelegramClient, msg: any, type: string, callback: (url: string) => void) {
     try {
         const buffer = await client.downloadMedia(msg);
-        if (buffer) {
+        if (buffer && Buffer.isBuffer(buffer)) {
             const url = await MediaService.saveBuffer(buffer, type as any);
             callback(url);
         }

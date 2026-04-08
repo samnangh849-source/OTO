@@ -27,7 +27,7 @@ router.post('/send', async (req, res) => {
     if (!client) return res.status(500).json({ error: 'Account not linked' });
 
     try {
-        const peer = await client.getEntity(BigInt(chatId));
+        const peer = await client.getEntity(BigInt(chatId) as any);
         let sent;
         let finalContent = content;
 
@@ -81,7 +81,7 @@ router.post('/reply', async (req, res) => {
         const message = messages.find((m: any) => m.telegramMessageId.toString() === telegramMessageId.toString());
         if (!message) return res.status(404).json({ error: 'Message not found' });
 
-        const peer = await client.getEntity(BigInt(message.senderId));
+        const peer = await client.getEntity(BigInt(message.senderId) as any);
         if (template.type === 'flow') {
             const steps = JSON.parse(template.content);
             res.json({ success: true, part: 'flow_started' });

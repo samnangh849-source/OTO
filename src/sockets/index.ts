@@ -64,7 +64,7 @@ export function setupSockets(io: Server) {
         const updatedAccount = { ...account, licenseKey };
         await GoogleSheetService.saveAccount(updatedAccount, licenseKey);
 
-        TelegramService.setupHandlers(activeAuthClient, io, account.id);
+        TelegramService.setupHandlers(activeAuthClient, io, account.id, licenseKey);
         socket.emit('tg_connected', { user: updatedAccount });
         io.emit('tg_status', { status: 'connected' });
       } catch (err: any) { 
