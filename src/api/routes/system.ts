@@ -1,9 +1,12 @@
 import express from 'express';
 import { networkInterfaces } from 'os';
 import { GoogleSheetService } from '../../services/googleSheet.service.js';
+import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
 const PORT = parseInt(process.env.PORT || '3000', 10);
+
+router.use(auth);
 
 router.get('/network', (req, res) => {
     const results: string[] = [];
@@ -26,18 +29,18 @@ router.get('/network', (req, res) => {
 
 router.get('/stats', async (req, res) => {
     try {
-        const messages = await GoogleSheetService.getMessages() || [];
+        const licenseKey = (req as any).user?.key;
+        const messages = await GoogleSheetService.getMessages(licenseKey) || [];
         const total = messages.length;
-        const incoming = messages.filter((m: any) => !(m.isOutgoing !== undefined ? m.isOutgoing : m.is_outgoing)).length;
-        const outgoing = messages.filter((m: any) => (m.isOutgoing !== undefined ? m.isOutgoing : m.is_outgoing)).length;
-        const unreplied = messages.filter((m: any) => !(m.isOutgoing !== undefined ? m.isOutgoing : m.is_outgoing) && !(m.isReplied !== undefined ? m.isReplied : m.is_replied)).length;
+        const incoming = messages.filter((m: any) => !m.isOutgoing).length;
+        const outgoing = messages.filter((m: any) => m.isOutgoing).length;
+        const unreplied = messages.filter((m: any) => !m.isOutgoing && !m.isReplied).length;
         
         // Count top users
         const counts: Record<string, number> = {};
         messages.forEach((m: any) => {
-            const isOut = m.isOutgoing !== undefined ? m.isOutgoing : m.is_outgoing;
-            if (!isOut) {
-                const name = m.senderName || m.sender_name || 'Unknown';
+            if (!m.isOutgoing) {
+                const name = m.senderName || 'Unknown';
                 counts[name] = (counts[name] || 0) + 1;
             }
         });

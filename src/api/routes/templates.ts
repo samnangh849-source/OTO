@@ -1,30 +1,44 @@
 import express from 'express';
 import { GoogleSheetService } from '../../services/googleSheet.service.js';
+import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-    const templates = await GoogleSheetService.getTemplates() || [];
-    res.json(templates);
+router.use(auth);
+
+router.get('/templates', async (req, res) => {
+    try {
+        const licenseKey = (req as any).user?.key;
+        const templates = await GoogleSheetService.getTemplates(licenseKey) || [];
+        res.json(templates);
+    } catch (e) {
+        res.status(500).json({ error: 'Failed to fetch templates' });
+    }
 });
 
-router.post('/', async (req, res) => {
-    const { name, type, content, tags = '' } = req.body;
-    const templateData = { id: Date.now(), name, type, content, tags };
-    await GoogleSheetService.saveTemplate(templateData);
-    res.json(templateData);
+router.post('/templates', async (req, res) => {
+    try {
+        const licenseKey = (req as any).user?.key;
+        const template = {
+            ...req.body,
+            id: req.body.id || Date.now(),
+            licenseKey
+        };
+        await GoogleSheetService.saveTemplate(template, licenseKey);
+        res.json(template);
+    } catch (e) {
+        res.status(500).json({ error: 'Failed to save template' });
+    }
 });
 
-router.put('/:id', async (req, res) => {
-    const { name, type, content, tags = '' } = req.body;
-    const templateData = { id: parseInt(req.params.id), name, type, content, tags };
-    await GoogleSheetService.saveTemplate(templateData);
-    res.json({ success: true });
-});
-
-router.delete('/:id', async (req, res) => {
-    await GoogleSheetService.deleteTemplate(parseInt(req.params.id));
-    res.json({ success: true });
+router.delete('/templates/:id', async (req, res) => {
+    try {
+        const licenseKey = (req as any).user?.key;
+        await GoogleSheetService.deleteTemplate(parseInt(req.params.id), licenseKey);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Failed to delete template' });
+    }
 });
 
 export default router;

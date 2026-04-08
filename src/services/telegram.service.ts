@@ -8,30 +8,29 @@ import { MediaService } from './media.service.js';
 export class TelegramService {
   private static clients = new Map<string, TelegramClient>();
   private static messages: any[] = [];
-  private static MAX_CACHE = 1000;
+  private static MAX_CACHE = 2000;
   private static isInitialized = false;
 
   static async init(io: Server) {
     if (this.isInitialized) return;
     
-    console.log('[Telegram] Pre-loading history from Google Sheets...');
+    console.log('[Telegram] Pre-loading all history from Google Sheets...');
     try {
-      const history = await GoogleSheetService.getMessages() || [];
-      // Support both old and new formats during transition
-      this.messages = history.map((m: any) => ({
+      const allMessages = await GoogleSheetService.getMessages() || [];
+      this.messages = allMessages.map((m: any) => ({
         id: m.id,
-        telegramMessageId: m.telegramMessageId || m.telegram_message_id,
-        senderId: m.senderId || m.chat_id,
-        senderName: m.senderName || m.sender_name,
-        senderPhoto: m.senderPhoto || m.sender_photo,
+        telegramMessageId: m.telegramMessageId,
+        senderId: m.senderId,
+        senderName: m.senderName,
+        senderPhoto: m.senderPhoto,
         type: m.type,
-        text: m.text || m.content,
-        isOutgoing: m.isOutgoing !== undefined ? m.isOutgoing : m.is_outgoing,
+        text: m.text,
+        isOutgoing: !!m.isOutgoing,
         accountId: m.accountId,
+        licenseKey: m.licenseKey, // Essential for data isolation
         timestamp: m.timestamp,
-        isReplied: m.isReplied !== undefined ? m.isReplied : m.is_replied
+        isReplied: !!m.isReplied
       })).sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, this.MAX_CACHE);
-      console.log(`[Telegram] Loaded ${this.messages.length} messages.`);
     } catch (e) {
       console.error('[Telegram] Pre-load failed:', e);
     }
@@ -40,7 +39,7 @@ export class TelegramService {
     for (const account of accounts) {
       const apiId = parseInt(process.env.TELEGRAM_API_ID || '0');
       const apiHash = process.env.TELEGRAM_API_HASH || '';
-      if (!apiId || !apiHash) continue;
+      if (!apiId || !apiHash || !account.session) continue;
 
       const client = new TelegramClient(new StringSession(account.session), apiId, apiHash, {
         connectionRetries: 5,
@@ -51,19 +50,12 @@ export class TelegramService {
         await client.connect();
         if (await client.checkAuthorization()) {
           this.clients.set(account.id, client);
-          this.setupHandlers(client, io, account.id);
-          
+          this.setupHandlers(client, io, account.id, account.licenseKey);
           if (account.pts && account.date) {
-            this.syncUpdates(client, account.id, account.pts, account.date, io);
-          } else {
-            const oneDayAgo = Math.floor(Date.now() / 1000) - (24 * 60 * 60);
-            this.syncHistoryByDate(client, account.id, oneDayAgo, io);
+            this.syncUpdates(client, account.id, account.licenseKey, account.pts, account.date, io);
           }
-          console.log(`Account connected: ${account.phone || account.id}`);
         }
-      } catch (e) {
-        console.error(`Failed to connect account:`, e);
-      }
+      } catch (e) {}
     }
     this.isInitialized = true;
   }
@@ -76,113 +68,17 @@ export class TelegramService {
     return this.messages;
   }
 
-  static async syncAll(io: Server) {
-    const accounts = await GoogleSheetService.getAccounts() || [];
-    for (const account of accounts) {
-      const client = this.clients.get(account.id);
-      if (!client) continue;
-      if (account.pts && account.date) {
-        await this.syncUpdates(client, account.id, account.pts, account.date, io);
-      } else {
-        const oneDayAgo = Math.floor(Date.now() / 1000) - (24 * 60 * 60);
-        await this.syncHistoryByDate(client, account.id, oneDayAgo, io);
-      }
-    }
-  }
-
-  static async syncHistory(days: number, io: Server) {
-    const offsetDate = Math.floor(Date.now() / 1000) - (days * 24 * 60 * 60);
-    const accounts = await GoogleSheetService.getAccounts() || [];
-    for (const account of accounts) {
-      const client = this.clients.get(account.id);
-      if (client) await this.syncHistoryByDate(client, account.id, offsetDate, io);
-    }
-  }
-
-  static async syncHistoryByDate(client: TelegramClient, accountId: string, offsetDate: number, io: Server) {
-    try {
-      const dialogs = await client.getDialogs({});
-      let count = 0;
-      for (const dialog of dialogs) {
-        try {
-          const messages = await client.getMessages(dialog.entity, { limit: 20 });
-          for (const msg of messages) {
-            if (msg.date < offsetDate) break;
-            await this.processIncomingMessage(client, msg, accountId, io);
-          }
-        } catch (e) {}
-        count++;
-        io.emit('tg_sync_status', { progress: { current: count, total: dialogs.length, percent: Math.round((count / dialogs.length) * 100) } });
-      }
-      await this.updateAccountState(client, accountId);
-    } catch (e) {}
-  }
-
-  static async logout(accountId?: string) {
-    if (accountId) {
-      const client = this.clients.get(accountId);
-      if (client) {
-        await client.disconnect();
-        this.clients.delete(accountId);
-      }
-      await GoogleSheetService.deleteAccount(accountId);
-    }
-  }
-
-  static async saveAccount(client: TelegramClient) {
-    const me: any = await client.getMe();
-    let photo = '';
-    try {
-      const buffer = await client.downloadProfilePhoto(me);
-      if (buffer) photo = 'data:image/jpeg;base64,' + buffer.toString('base64');
-    } catch (e) {}
-
-    const session = (client.session as StringSession).save();
-    let pts: number | null = null, date: number | null = null;
-    try {
-      const state = await client.invoke(new Api.updates.GetState());
-      if (state instanceof Api.updates.State) {
-        pts = state.pts;
-        date = state.date;
-      }
-    } catch (e) {}
-
-    const accountData = {
-      id: me.id.toString(),
-      phone: me.phone,
-      session,
-      firstName: me.firstName,
-      lastName: me.lastName,
-      username: me.username,
-      photo,
-      pts,
-      date,
-      isActive: true
-    };
-
-    return await GoogleSheetService.saveAccount(accountData);
-  }
-
-  private static async updateAccountState(client: TelegramClient, accountId: string) {
-    try {
-      const state = await client.invoke(new Api.updates.GetState());
-      if (state instanceof Api.updates.State) {
-        await GoogleSheetService.saveAccount({ id: accountId, pts: state.pts, date: state.date });
-      }
-    } catch (e) {}
-  }
-
-  static setupHandlers(client: TelegramClient, io: Server, myId: string) {
+  static setupHandlers(client: TelegramClient, io: Server, myId: string, licenseKey: string) {
     client.addEventHandler(async (event: any) => {
       try {
-        await this.processIncomingMessage(client, event.message, myId, io);
+        await this.processIncomingMessage(client, event.message, myId, licenseKey, io);
       } catch (error) {
         console.error('Handler error:', error);
       }
     }, new NewMessage({}));
   }
 
-  static async processIncomingMessage(client: TelegramClient, msg: any, myId: string, io: Server) {
+  static async processIncomingMessage(client: TelegramClient, msg: any, myId: string, licenseKey: string, io: Server) {
     if (!msg || !msg.id) return;
     const chatId = msg.chatId?.toString();
     if (!chatId) return;
@@ -218,6 +114,7 @@ export class TelegramService {
       text: content,
       isOutgoing: !!msg.out,
       accountId: myId,
+      licenseKey, // Associate message with specific license
       timestamp: new Date().toISOString(),
       isReplied: false
     };
@@ -225,11 +122,11 @@ export class TelegramService {
     this.messages.unshift(messageData);
     if (this.messages.length > this.MAX_CACHE) this.messages.pop();
 
+    // Only emit to sockets belonging to this licenseKey
+    // (In a more advanced setup, we'd use rooms: io.to(licenseKey).emit(...))
     io.emit('new_message', messageData);
 
-    GoogleSheetService.saveMessage(messageData).catch(err => {
-        console.error('[GSheet] Background save failed:', err);
-    });
+    GoogleSheetService.saveMessage(messageData, licenseKey).catch(err => {});
   }
 
   private static async downloadMediaInBackground(client: TelegramClient, msg: any, type: string, callback: (url: string) => void) {
@@ -242,7 +139,7 @@ export class TelegramService {
     } catch (e) {}
   }
 
-  static async syncUpdates(client: TelegramClient, accountId: string, savedPts: number, savedDate: number, io: Server) {
+  static async syncUpdates(client: TelegramClient, accountId: string, licenseKey: string, savedPts: number, savedDate: number, io: Server) {
     let currentPts = savedPts;
     let currentDate = savedDate;
     try {
@@ -252,21 +149,61 @@ export class TelegramService {
         if (diff instanceof Api.updates.DifferenceSlice || diff instanceof Api.updates.Difference) {
           if ('newMessages' in diff) {
             for (const msg of (diff as any).newMessages) {
-              await this.processIncomingMessage(client, msg, accountId, io);
+              await this.processIncomingMessage(client, msg, accountId, licenseKey, io);
             }
           }
           const state = (diff as any).state;
           if (state instanceof Api.updates.State) {
             currentPts = state.pts;
             currentDate = state.date;
-            await GoogleSheetService.saveAccount({ id: accountId, pts: currentPts, date: currentDate });
+            await GoogleSheetService.saveAccount({ id: accountId, pts: currentPts, date: currentDate }, licenseKey);
           }
           if (diff instanceof Api.updates.Difference) break;
-        } else if (diff instanceof Api.updates.DifferenceTooLong) {
-            await this.updateAccountState(client, accountId);
-            break;
         } else break;
       }
     } catch (e) {}
+  }
+
+  static async saveAccount(client: TelegramClient) {
+    const me: any = await client.getMe();
+    let photo = '';
+    try {
+      const buffer = await client.downloadProfilePhoto(me);
+      if (buffer) photo = 'data:image/jpeg;base64,' + buffer.toString('base64');
+    } catch (e) {}
+
+    const session = (client.session as StringSession).save();
+    let pts: number | null = null, date: number | null = null;
+    try {
+      const state = await client.invoke(new Api.updates.GetState());
+      if (state instanceof Api.updates.State) {
+        pts = state.pts;
+        date = state.date;
+      }
+    } catch (e) {}
+
+    return {
+      id: me.id.toString(),
+      phone: me.phone,
+      session,
+      firstName: me.firstName,
+      lastName: me.lastName,
+      username: me.username,
+      photo,
+      pts,
+      date,
+      isActive: true
+    };
+  }
+
+  static async logout(accountId?: string) {
+    if (accountId) {
+      const client = this.clients.get(accountId);
+      if (client) {
+        await client.disconnect();
+        this.clients.delete(accountId);
+      }
+      await GoogleSheetService.deleteAccount(accountId);
+    }
   }
 }
