@@ -1025,3 +1025,120 @@ Use these addresses to access the dashboard from other devices on your Wi-Fi.
   
 
   ហេតុអ្វី Generate QR Code មិនដំណើរការ
+
+
+
+  ហេតុអ្វីនៅពេល Deploy ក្នុង Render វាបង្ហាញថា (Awaiting build logs... New log entries will appear here.) យ៉ាងយូរ?
+
+
+
+
+
+  មូលហេតុដែល Render បង្ហាញ "Awaiting build logs..." យូរ អាចមកពីចំណុចសំខាន់ៗមួយចំនួនដូចខាងក្រោម៖
+
+  ១. ការរង់ចាំក្នុង Queue (Build Slot)
+  ប្រសិនបើអ្នកប្រើ Render Free Plan ពេលខ្លះវាអាចនឹងត្រូវរង់ចាំយូរ (ច្រើននាទី) រហូតដល់មានម៉ាស៊ីនសម្រាប់ Build ទំនេរ ទើបវាចាប់ផ្ដើមបង្ហាញ Log។
+
+  ២. ដំណើរការ Build ធ្ងន់ពេក (Memory Limit)
+  ក្នុង render.yaml របស់អ្នកមានការប្រើប្រាស់ npm install និង npm run build ដែលរួមមានទាំង Vite និង Esbuild។
+   * Dependencies ច្រើន៖ គម្រោងរបស់អ្នកមាន Library ធំៗដូចជា electron, electron-builder, sharp, sqlite3 និង telegram។ ការដំឡើង (npm install) និងការ Build
+     របស់ទាំងនេះត្រូវការ RAM ច្រើន។
+   * Free Plan Limit៖ Render Free Plan ផ្តល់ RAM ត្រឹមតែ 512MB។ ប្រសិនបើដំណើរការ Build ប្រើ RAM លើសពីនេះ វានឹងធ្វើឲ្យម៉ាស៊ីនដើរយឺតខ្លាំង (Swapping) ឬគាំង ដែលជាហេតុនាំឲ្យ Log
+     មិនព្រមចេញមក។
+
+  ៣. បញ្ហាជាមួយ Prisma និង SQLite
+  ក្នុង buildCommand អ្នកមាន npx prisma db push។ 
+   * ប្រសិនបើ Prisma ត្រូវការការបញ្ជាក់ (Confirmation) ពីអ្នក (ឧទាហរណ៍៖ មានការបាត់បង់ទិន្នន័យក្នុង Database) វានឹងគាំងរង់ចាំការឆ្លើយតបរបស់អ្នក ដែលអ្នកមិនអាចមើលឃើញក្នុង Render
+     Dashboard ឡើយ។
+   * Path Database៖ ក្នុង render.yaml អ្នកកំណត់ DATABASE_URL: file:./prisma/database.sqlite។ នៅលើ Render អ្នកគួរតែប្រើ Path ទៅកាន់ Disk ដែលអ្នកបាន Mount
+     ដើម្បីរក្សាទិន្នន័យ (Persistence)។
+
+  ដំណោះស្រាយដែលអ្នកគួរធ្វើ៖
+
+  ១. កែប្រែ render.yaml ដើម្បីឲ្យការ Build លឿន និងស្រាលជាងមុន៖
+  ប្តូរ buildCommand ទៅជា៖
+
+   1 buildCommand: npm install --no-audit --no-fund && npx prisma generate && npx prisma db push --accept-data-loss && npm run build
+  (ចំណាំ៖ --accept-data-loss ប្រើសម្រាប់តែពេល Setup ដំបូង ឬពេលអ្នកសុខចិត្តឲ្យវា Reset database schema ប៉ុណ្ណោះ)
+
+  ២. តើការកែប្រែ DATABASE_URL ឲ្យប្រើលើ Disk ដើម្បីកុំឲ្យបាត់ទិន្នន័យពេល Restart៖
+  ក្នុង render.yaml ប្តូរ៖
+   1       - key: DATABASE_URL
+   2         value: file:/app/uploads/database.sqlite
+  (ព្រោះអ្នកបាន Mount Disk នៅ /app/uploads រួចហើយ)
+
+  ៣. ពិនិត្យមើល Environment Variables៖
+  ត្រូវប្រាកដថាអ្នកបានបំពេញតម្លៃពិតប្រាកដសម្រាប់ TELEGRAM_API_ID, TELEGRAM_API_HASH និង GOOGLE_SCRIPT_URL នៅក្នុង Render Dashboard (មិនមែនទុកអក្សរខ្មែរដូចក្នុង file
+  ឡើយ)។
+
+  ៤. សាកល្បង Refresh ទំព័រ Render៖
+  ជួនកាលវាគ្រាន់តែជាបញ្ហា UI បង្ហាញយឺតប៉ុណ្ណោះ។ ប្រសិនបើលើសពី ១៥ នាទីនៅតែមិនបង្ហាញ អ្នកគួរតែ Cancel Build ហើយ Manual Deploy ម្ដងទៀត។
+
+                                                                                                              
+
+ តើការកែប្រែ DATABASE_URL ឲ្យប្រើលើ Disk មានន័យថាដូចម្ដេច Local storage មែនទេ?                                                                                                             
+
+
+
+ េ វាមិនមែនជា Local Storage នៅក្នុង Browser (ដែលយើងប្រើក្នុង JavaScript លើ Client-side) នោះទេ។
+
+  ក្នុងបរិបទរបស់ Render ឬ Server-side ការប្រើប្រាស់ Disk មានន័យថាជា "ថាសផ្ទុកទិន្នន័យអចិន្ត្រៃយ៍" (Persistent Disk)។ ខ្ញុំសូមពន្យល់ឲ្យកាន់តែច្បាស់ដូចខាងក្រោម៖
+
+  ១. ហេតុអ្វីបានជាត្រូវប្រើ Disk?
+  នៅលើ Render (និង Cloud platforms ផ្សេងទៀត) រាល់ពេលដែលអ្នកធ្វើការ Deploy កូដថ្មី ឬរាល់ពេលដែល Server របស់អ្នក Restart នោះរាល់ File ទាំងអស់ដែលនៅក្នុង Folder កូដរបស់អ្នកនឹងត្រូវ
+  "លុបចោល ហើយបង្កើតថ្មី" (Ephemeral File System)។
+   * ប្រសិនបើអ្នកទុក SQLite file ក្នុង Folder prisma/database.sqlite ធម្មតា នោះរាល់ពេលអ្នក Deploy ថ្មី ទិន្នន័យចាស់ៗរបស់អ្នកនឹងត្រូវ បាត់អស់ (ព្រោះវាត្រូវបានជំនួសដោយ File
+     ទទេថ្មីចេញពី GitHub របស់អ្នក)។
+
+  ២. ការប្រើប្រាស់ Disk (Persistent Disk)
+  នៅពេលអ្នកបង្កើត Disk ក្នុង render.yaml (ដូចដែលអ្នកមានស្រាប់ឈ្មោះ uploads-cache នោះ) វាប្រៀបដូចជាការទិញ USB ឬ Hard Disk ក្រៅ មកដោតជាប់ជាមួយ Server របស់អ្នក៖
+   * វានៅដាច់ដោយឡែកពី Folder កូដ។
+   * នៅពេលអ្នក Deploy កូដថ្មី ឬ Restart Server ក៏ទិន្នន័យនៅក្នុង Disk នេះ មិនបាត់បង់ឡើយ។
+
+  ៣. ការកែប្រែ DATABASE_URL ទៅកាន់ Disk
+  នៅក្នុង render.yaml របស់អ្នក អ្នកបានកំណត់ផ្លូវ (Mount Path) របស់ Disk គឺ /app/uploads។ ដូច្នេះការដូរ DATABASE_URL គឺដើម្បីប្រាប់ Prisma ឲ្យទៅបង្កើត និងអាន File
+  Database នៅលើ "Hard Disk ក្រៅ" នោះវិញ៖
+
+   1 # ក្នុង render.yaml
+   2 envVars:
+   3   - key: DATABASE_URL
+   4     value: file:/app/uploads/database.sqlite  # ទុកក្នុង Disk ដែលមិនបាត់ទិន្នន័យ
+
+  សេចក្តីសន្និដ្ឋាន៖
+   * Local storage (ក្នុង Browser)៖ សម្រាប់ទុកទិន្នន័យតូចតាចរបស់អ្នកប្រើប្រាស់ម្នាក់ៗលើម៉ាស៊ីនគេផ្ទាល់។
+   * Persistent Disk (លើ Render)៖ សម្រាប់ទុក Database (SQLite) និង File រូបភាព/វីដេអូ ដែលអ្នកបាន Upload មកកាន់ Server ដើម្បីកុំឲ្យវាបាត់បង់នៅពេល Server បិទ ឬ Deploy
+     ថ្មី។
+
+  ចំណាំ៖ ដោយសារគម្រោងរបស់អ្នកមានការប្រើប្រាស់ uploads/ សម្រាប់ទុក images, videos, និង voice ស្រាប់ ដូច្នេះការដាក់ Database ក្នុង Folder នេះជាមួយគ្នា គឺជាការសម្រេចចិត្តដ៏ត្រឹមត្រូវបំផុត
+  ដើម្បីការពារការបាត់បង់ទិន្នន័យទាំងអស់។
+
+បាទ/ចាស! Disk ក្នុង Render (ឬហៅពេញថា Persistent Disk) គឺជាសេវាកម្មមួយរបស់ Render ដែលផ្តល់ "ថាសផ្ទុកទិន្នន័យ" មកឲ្យ Server របស់អ្នកប្រើប្រាស់។
+
+  ប៉ុន្តែមានចំណុច សំខាន់បំផុត មួយដែលអ្នកត្រូវដឹង៖
+
+  ១. Render Free Plan មិនមាន Disk ទេ
+  បើទោះបីជាអ្នកសរសេរកូដ disk: ក្នុង render.yaml ក៏ដោយ ក៏វានឹងមិនដំណើរការឡើយ ប្រសិនបើអ្នកប្រើ Plan: Free។
+   * Persistent Disk តម្រូវឲ្យអ្នកប្រើ Paid Plan (ចាប់ពី $៧ ក្នុងមួយខែឡើងទៅ)។
+   * នៅលើ Free Plan រាល់ File ទាំងអស់ដែលអ្នក Upload ឬ Database SQLite ដែលអ្នកបង្កើត វានឹង បាត់អស់ រាល់ពេលដែល Server របស់អ្នក Restart ឬរាល់ពេលអ្នក Deploy ថ្មី។
+
+  ២. ផលវិបាកសម្រាប់គម្រោងរបស់អ្នក
+  ដោយសារគម្រោងរបស់អ្នកប្រើ SQLite (ដែលជា File ទុកក្នុង Server) និងមានការ Upload រូបភាព/វីដេអូ៖
+   * ប្រសិនបើអ្នកប្រើ Free Plan៖ ទិន្នន័យរបស់អ្នកនឹងមិនស្ថិតស្ថេរឡើយ (បាត់បង់រហូត)។
+   * ប្រសិនបើអ្នកចង់រក្សាទិន្នន័យឲ្យនៅអចិន្ត្រៃយ៍ អ្នកមានជម្រើស ២៖
+       * ជម្រើសទី ១៖ ប្តូរទៅប្រើ Paid Plan លើ Render ដើម្បីអាចប្រើ Disk បាន។
+       * ជម្រើសទី ២៖ ប្តូរពី SQLite ទៅប្រើ External Database ដូចជា PostgreSQL (Supabase) ឬ MongoDB Atlas ដែលគេផ្តល់ឲ្យប្រើ Free (Database ទាំងនេះនៅក្រៅ Render
+         ដូច្នេះវាមិនបាត់ទិន្នន័យពេល Render Restart ទេ)។
+
+  ៣. តើគួរធ្វើដូចម្តេច?
+  ប្រសិនបើអ្នកគ្រាន់តែចង់សាកល្បង (Test) ហើយមិនទាន់ចង់បង់លុយ៖
+   * អ្នកអាចបន្តប្រើ SQLite ធម្មតាបាន ប៉ុន្តែត្រូវដឹងថាទិន្នន័យនឹងត្រូវ Reset រាល់ពេល Deploy។
+   * អ្នកគួរតែលុបផ្នែក disk: ចេញពី render.yaml ដើម្បីកុំឲ្យវាមាន Error ពេល Deploy លើ Free Plan។
+
+  សង្ខេបមកវិញ៖ Disk ក្នុង Render គឺជា "Hard Disk" សម្រាប់ Server ប៉ុន្តែវា មិនហ្វ្រី ទេ។ ប្រសិនបើអ្នកប្រើ Free Plan នោះអ្នកកំពុងប្រើ "Storage បណ្តោះអាសន្ន" ដែលនឹងត្រូវលុបចោលជាញឹកញាប់។
+
+
+  បាត់សូមលុបផ្នែក លុបផ្នែក disk ចេញពី render.yaml។ ហើយទិន្នន័យ សារ History គឺមិនចាំបាច់រក្សារទុកក្នុង Google Sheet ទៀតទេ ព្រោះUser អាចមើល History ដោយភ្ជាប់ទៅកាន់ Server របស់ telegram ផ្ទាល់ ឬ Cache ក្នុង browser របស់ user ផ្ទាល់។ រីឯទិន្នន័យទិន្នន័យ Google Sheet មានតួររក្សារទុកតែ(Licenses,Templates,Accounts) 
+  
+  
+  ហើយទិន្នន័យទាំងអស់ត្រូវរក្សារទុកផងដែរក្នុង Google Sheet តាមរយៈ App Script ហើយ Render មានអាចរក្សារទុកទិន្នន័យទៅក្នុង Google Sheet ហើយក៏អាច ទាញទិន្នន័យពី Google Sheet មកប្រើវិញ ដើម្បីក្នុងលក្ខខណ្ឌថា ប្រសិនបើ database.sqlite គឹប្រើបានធំបំផុត 200MB ចឹង Render អាចធ្វើការបែប Dynamic រក្សាទិន្នន័យចាស់ៗទៅទុកក្នុង Google Sheet ចាំពេលត្រូវការទើបទាញយកមក ហើយdatabase.sqlite ហាក់ដូចជា Ram ចឹងឯង
+

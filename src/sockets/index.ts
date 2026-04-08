@@ -39,35 +39,55 @@ export function setupSockets(io: Server) {
     socket.on('request_qr', async () => {
       try {
         const licenseKey = getLicenseKey();
-        if (!licenseKey) return socket.emit('tg_error', 'Unauthorized');
-        if (!TELEGRAM_API_ID || !TELEGRAM_API_HASH) return socket.emit('tg_error', 'Missing API Credentials');
+        console.log(`[Socket] QR Request for license: ${licenseKey}`);
+        if (!licenseKey) return socket.emit('tg_error', 'Unauthorized: Missing License Key');
+        if (!TELEGRAM_API_ID || !TELEGRAM_API_HASH) {
+            console.error('[Socket] Missing API Credentials in .env');
+            return socket.emit('tg_error', 'Missing API Credentials in Server Configuration');
+        }
         
-        activeAuthClient = new TelegramClient(new StringSession(''), TELEGRAM_API_ID, TELEGRAM_API_HASH, { connectionRetries: 5 });
+        activeAuthClient = new TelegramClient(new StringSession(''), TELEGRAM_API_ID, TELEGRAM_API_HASH, { 
+            connectionRetries: 5,
+            deviceModel: 'OTO Dashboard',
+            systemVersion: '1.0.0'
+        });
+        
+        console.log('[Socket] Connecting to Telegram...');
         await activeAuthClient.connect();
         
+        console.log('[Socket] Starting QR Login session...');
         await activeAuthClient.signInUserWithQrCode({ apiId: TELEGRAM_API_ID, apiHash: TELEGRAM_API_HASH }, {
           onError: async (err: any) => { 
+            console.error('[Socket] QR Login Error:', err);
             socket.emit('tg_error', String(err.message || err)); 
             return true; 
           },
           qrCode: async (code) => { 
-            socket.emit('tg_qr', { qr: await QRCode.toDataURL(`tg://login?token=${code.token.toString('base64url')}`) }); 
+            const qrData = await QRCode.toDataURL(`tg://login?token=${code.token.toString('base64url')}`);
+            console.log('[Socket] QR Code Generated');
+            socket.emit('tg_qr', { qr: qrData }); 
           },
           password: async (hint) => { 
+            console.log('[Socket] 2FA Password Required');
             socket.emit('tg_password_required', hint); 
             return new Promise((resolve) => socket.once('tg_submit_password', resolve)); 
           }
         });
 
+        console.log('[Socket] Login Successful');
         const account = await TelegramService.saveAccount(activeAuthClient);
-        // Link account to licenseKey
         const updatedAccount = { ...account, licenseKey };
+        
+        console.log(`[Socket] Saving account ${account.id} to Google Sheets...`);
         await GoogleSheetService.saveAccount(updatedAccount, licenseKey);
 
-        TelegramService.setupHandlers(activeAuthClient, io, account.id, licenseKey);
+        console.log(`[Socket] Registering client ${account.id} in TelegramService...`);
+        TelegramService.registerClient(account.id, activeAuthClient, io, licenseKey);
+        
         socket.emit('tg_connected', { user: updatedAccount });
         io.emit('tg_status', { status: 'connected' });
       } catch (err: any) { 
+        console.error('[Socket] Critical QR Error:', err);
         socket.emit('tg_error', String(err.message || err)); 
       }
     });

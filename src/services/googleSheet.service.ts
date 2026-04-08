@@ -38,23 +38,6 @@ export class GoogleSheetService {
     return this.request('delete_account', { id }, licenseKey);
   }
 
-  // Message operations
-  static async getMessages(licenseKey?: string, accountId?: string, lastId?: number) {
-    return this.request('get_messages', { accountId, lastId }, licenseKey);
-  }
-
-  static async saveMessage(message: any, licenseKey?: string) {
-    return this.request('save_message', { message }, licenseKey);
-  }
-
-  static async findMessage(telegramMessageId: number, accountId: string, licenseKey?: string) {
-    return this.request('find_message', { telegramMessageId, accountId }, licenseKey);
-  }
-
-  static async findLastMessage(accountId: string, licenseKey?: string) {
-    return this.request('find_last_message', { accountId }, licenseKey);
-  }
-
   // Template operations
   static async getTemplates(licenseKey?: string) {
     return this.request('get_templates', {}, licenseKey);

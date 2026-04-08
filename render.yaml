@@ -3,7 +3,7 @@ services:
     name: telegram-manual-dashboard
     env: node
     plan: free
-    buildCommand: npm install && npx prisma generate && npx prisma db push && npm run build
+    buildCommand: npm install && npx prisma generate && npx prisma db push --accept-data-loss && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -18,7 +18,3 @@ services:
         value: "ដាក់_API_HASH_ទីនេះ"
       - key: JWT_SECRET
         value: "បង្កើត_Secret_Key_ទីនេះ"
-    disk:
-      name: uploads-cache
-      mountPath: /app/uploads
-      sizeGB: 1

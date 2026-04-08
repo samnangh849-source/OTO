@@ -11,10 +11,14 @@ router.use(auth);
 router.get('/', async (req, res) => {
     try {
         const licenseKey = (req as any).user?.key;
+        if (!licenseKey) return res.status(401).json({ error: 'Unauthorized' });
+
         // Serve from RAM cache first
-        const messages = TelegramService.getCachedMessages().filter(m => m.licenseKey === licenseKey);
+        let messages = TelegramService.getCachedMessages().filter(m => m.licenseKey === licenseKey);
+        
         res.json(messages);
     } catch (e) {
+        console.error('[API] Failed to fetch messages:', e);
         res.status(500).json({ error: 'Failed to fetch messages' });
     }
 });
@@ -55,7 +59,8 @@ router.post('/send', async (req, res) => {
             isReplied: false
         };
 
-        await GoogleSheetService.saveMessage(newMessageData, licenseKey);
+        // Message is already in TelegramService.messages via processIncomingMessage or cached locally
+        TelegramService.addMessageToCache(newMessageData);
 
         res.json(newMessageData);
     } catch (e: any) {
@@ -77,7 +82,7 @@ router.post('/reply', async (req, res) => {
     if (!template) return res.status(404).json({ error: 'Template not found' });
 
     try {
-        const messages = await GoogleSheetService.getMessages(licenseKey, accountId) || [];
+        const messages = TelegramService.getCachedMessages().filter(m => m.licenseKey === licenseKey);
         const message = messages.find((m: any) => m.telegramMessageId.toString() === telegramMessageId.toString());
         if (!message) return res.status(404).json({ error: 'Message not found' });
 
@@ -106,7 +111,8 @@ router.post('/reply', async (req, res) => {
                     }
                 }
 
-                await GoogleSheetService.saveMessage({
+                TelegramService.addMessageToCache({
+                    id: Date.now() + Math.floor(Math.random() * 1000),
                     telegramMessageId: sent.id,
                     senderId: message.senderId,
                     senderName: 'Me',
@@ -117,7 +123,7 @@ router.post('/reply', async (req, res) => {
                     licenseKey,
                     timestamp: new Date().toISOString(),
                     isReplied: false
-                }, licenseKey);
+                });
             }
         } else {
             let sent;
@@ -131,7 +137,8 @@ router.post('/reply', async (req, res) => {
                     finalContent = await MediaService.saveBase64File(template.content, template.type as any);
                 }
             }
-            await GoogleSheetService.saveMessage({
+            TelegramService.addMessageToCache({
+                id: Date.now() + Math.floor(Math.random() * 1000),
                 telegramMessageId: sent.id,
                 senderId: message.senderId,
                 senderName: 'Me',
@@ -142,14 +149,14 @@ router.post('/reply', async (req, res) => {
                 licenseKey,
                 timestamp: new Date().toISOString(),
                 isReplied: false
-            }, licenseKey);
+            });
             res.json({ success: true });
         }
         
-        await GoogleSheetService.saveMessage({
-            ...message,
-            isReplied: true
-        }, licenseKey);
+        // Update isReplied status in cache
+        const targetMessage = TelegramService.getCachedMessages().find(m => m.telegramMessageId === message.telegramMessageId && m.accountId === accountId);
+        if (targetMessage) targetMessage.isReplied = true;
+
     } catch (e: any) {
         if (!res.headersSent) res.status(500).json({ error: e.message });
     }

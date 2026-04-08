@@ -14,50 +14,43 @@ export class TelegramService {
   static async init(io: Server) {
     if (this.isInitialized) return;
     
-    console.log('[Telegram] Pre-loading all history from Google Sheets...');
+    this.messages = []; // Clear local cache on start
+
     try {
-      const allMessages = await GoogleSheetService.getMessages() || [];
-      this.messages = allMessages.map((m: any) => ({
-        id: m.id,
-        telegramMessageId: m.telegramMessageId,
-        senderId: m.senderId,
-        senderName: m.senderName,
-        senderPhoto: m.senderPhoto,
-        type: m.type,
-        text: m.text,
-        isOutgoing: !!m.isOutgoing,
-        accountId: m.accountId,
-        licenseKey: m.licenseKey, // Essential for data isolation
-        timestamp: m.timestamp,
-        isReplied: !!m.isReplied
-      })).sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, this.MAX_CACHE);
-    } catch (e) {
-      console.error('[Telegram] Pre-load failed:', e);
-    }
+      // Fetch ALL accounts to reconnect them on server start
+      const accounts = await GoogleSheetService.getAccounts() || [];
+      for (const account of accounts) {
+        const apiId = parseInt(process.env.TELEGRAM_API_ID || '0');
+        const apiHash = process.env.TELEGRAM_API_HASH || '';
+        if (!apiId || !apiHash || !account.session) continue;
 
-    const accounts = await GoogleSheetService.getAccounts() || [];
-    for (const account of accounts) {
-      const apiId = parseInt(process.env.TELEGRAM_API_ID || '0');
-      const apiHash = process.env.TELEGRAM_API_HASH || '';
-      if (!apiId || !apiHash || !account.session) continue;
+        const client = new TelegramClient(new StringSession(account.session), apiId, apiHash, {
+          connectionRetries: 5,
+          autoReconnect: true
+        });
 
-      const client = new TelegramClient(new StringSession(account.session), apiId, apiHash, {
-        connectionRetries: 5,
-        autoReconnect: true
-      });
-
-      try {
-        await client.connect();
-        if (await client.checkAuthorization()) {
-          this.clients.set(account.id, client);
-          this.setupHandlers(client, io, account.id, account.licenseKey);
-          if (account.pts && account.date) {
-            this.syncUpdates(client, account.id, account.licenseKey, account.pts, account.date, io);
+        try {
+          await client.connect();
+          if (await client.checkAuthorization()) {
+            console.log(`[Telegram] Reconnected account: ${account.id} (${account.licenseKey})`);
+            this.registerClient(account.id, client, io, account.licenseKey);
+            if (account.pts && account.date) {
+              this.syncUpdates(client, account.id, account.licenseKey, account.pts, account.date, io);
+            }
           }
+        } catch (e) {
+          console.error(`[Telegram] Failed to reconnect account ${account.id}:`, e);
         }
-      } catch (e) {}
+      }
+    } catch (e) {
+      console.error('[Telegram] Accounts load failed:', e);
     }
     this.isInitialized = true;
+  }
+
+  static registerClient(accountId: string, client: TelegramClient, io: Server, licenseKey: string) {
+    this.clients.set(accountId, client);
+    this.setupHandlers(client, io, accountId, licenseKey);
   }
 
   static getClient(accountId: string) {
@@ -66,6 +59,11 @@ export class TelegramService {
 
   static getCachedMessages() {
     return this.messages;
+  }
+
+  static addMessageToCache(messageData: any) {
+    this.messages.unshift(messageData);
+    if (this.messages.length > this.MAX_CACHE) this.messages.pop();
   }
 
   static setupHandlers(client: TelegramClient, io: Server, myId: string, licenseKey: string) {
@@ -125,8 +123,6 @@ export class TelegramService {
     // Only emit to sockets belonging to this licenseKey
     // (In a more advanced setup, we'd use rooms: io.to(licenseKey).emit(...))
     io.emit('new_message', messageData);
-
-    GoogleSheetService.saveMessage(messageData, licenseKey).catch(err => {});
   }
 
   private static async downloadMediaInBackground(client: TelegramClient, msg: any, type: string, callback: (url: string) => void) {
@@ -156,6 +152,7 @@ export class TelegramService {
           if (state instanceof Api.updates.State) {
             currentPts = state.pts;
             currentDate = state.date;
+            // Only update PTS/Date in Google Sheets for session recovery
             await GoogleSheetService.saveAccount({ id: accountId, pts: currentPts, date: currentDate }, licenseKey);
           }
           if (diff instanceof Api.updates.Difference) break;

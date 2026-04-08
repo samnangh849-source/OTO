@@ -1,6 +1,7 @@
 import express from 'express';
 import { networkInterfaces } from 'os';
 import { GoogleSheetService } from '../../services/googleSheet.service.js';
+import { TelegramService } from '../../services/telegram.service.js';
 import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -30,11 +31,8 @@ router.get('/network', (req, res) => {
 router.get('/stats', async (req, res) => {
     try {
         const licenseKey = (req as any).user?.key;
-        let messages = await GoogleSheetService.getMessages(licenseKey);
-        if (!Array.isArray(messages)) {
-            console.error('[API] Failed to fetch messages for stats:', messages);
-            messages = [];
-        }
+        const messages = TelegramService.getCachedMessages().filter(m => m.licenseKey === licenseKey);
+        
         const total = messages.length;
         const incoming = messages.filter((m: any) => !m.isOutgoing).length;
         const outgoing = messages.filter((m: any) => m.isOutgoing).length;
