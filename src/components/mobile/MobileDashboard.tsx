@@ -397,11 +397,11 @@ export default function MobileDashboard() {
   };
 
   // Logic to compute conversations
-  const accountIds = new Set(accounts.map(a => a.id));
-  const allVisibleMessages = messages.filter(m => accountIds.has(m.account_id || ''));
+  const accountIds = new Set((Array.isArray(accounts) ? accounts : []).map(a => a.id));
+  const allVisibleMessages = (Array.isArray(messages) ? messages : []).filter(m => accountIds.has(m.account_id || ''));
   const visibleMessages = activeAccountId ? allVisibleMessages.filter(m => m.account_id === activeAccountId) : allVisibleMessages;
 
-  const conversations = Object.values<Conversation>(visibleMessages.reduce((acc, msg) => {
+  const conversations = Object.values<Conversation>((Array.isArray(visibleMessages) ? visibleMessages : []).reduce((acc, msg) => {
     if (!acc[msg.chat_id]) {
       acc[msg.chat_id] = {
         chat_id: msg.chat_id,
@@ -541,7 +541,7 @@ export default function MobileDashboard() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {templates.map(tmp => (
+        {(Array.isArray(templates) ? templates : []).map(tmp => (
           <div key={tmp.id} className="bg-binance-panel p-4 rounded-2xl border border-white/5 shadow-xl relative group">
             <div className="flex justify-between items-start mb-3">
               <div>
@@ -666,7 +666,7 @@ export default function MobileDashboard() {
             <button onClick={() => setShowAddAccount(true)} className="text-[10px] font-bold text-[#0088cc] border border-[#0088cc]/30 px-3 py-1 rounded-full">+ ADD</button>
           </div>
           <div className="space-y-3">
-            {accounts.map(acc => (
+            {(Array.isArray(accounts) ? accounts : []).map(acc => (
               <div key={acc.id} className="bg-binance-panel p-4 rounded-2xl border border-white/5 flex items-center justify-between shadow-lg">
                 <div className="flex items-center gap-4">
                   {acc.photo ? (
@@ -797,7 +797,7 @@ export default function MobileDashboard() {
             className="w-full px-3 py-2 bg-binance-bg border border-binance-border text-sm rounded-lg outline-none text-binance-text"
           >
             <option value="">All Accounts</option>
-            {accounts.map(ac => (
+            {(Array.isArray(accounts) ? accounts : []).map(ac => (
               <option key={ac.id} value={ac.id}>{ac.first_name || ac.username || ac.phone}</option>
             ))}
           </select>
@@ -980,7 +980,7 @@ export default function MobileDashboard() {
                 <button onClick={() => setShowTemplates(false)}><X size={20} /></button>
               </div>
               <div className="space-y-3 pb-6">
-                {templates.map(tmp => (
+                {(Array.isArray(templates) ? templates : []).map(tmp => (
                   <button 
                     key={tmp.id} 
                     onClick={() => handleTemplateReply(tmp)}

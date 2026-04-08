@@ -30,7 +30,11 @@ router.get('/network', (req, res) => {
 router.get('/stats', async (req, res) => {
     try {
         const licenseKey = (req as any).user?.key;
-        const messages = await GoogleSheetService.getMessages(licenseKey) || [];
+        let messages = await GoogleSheetService.getMessages(licenseKey);
+        if (!Array.isArray(messages)) {
+            console.error('[API] Failed to fetch messages for stats:', messages);
+            messages = [];
+        }
         const total = messages.length;
         const incoming = messages.filter((m: any) => !m.isOutgoing).length;
         const outgoing = messages.filter((m: any) => m.isOutgoing).length;

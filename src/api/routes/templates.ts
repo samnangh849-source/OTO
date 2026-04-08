@@ -9,7 +9,11 @@ router.use(auth);
 router.get('/templates', async (req, res) => {
     try {
         const licenseKey = (req as any).user?.key;
-        const templates = await GoogleSheetService.getTemplates(licenseKey) || [];
+        let templates = await GoogleSheetService.getTemplates(licenseKey);
+        if (!Array.isArray(templates)) {
+            console.error('[API] Failed to fetch templates or returned error:', templates);
+            templates = [];
+        }
         res.json(templates);
     } catch (e) {
         res.status(500).json({ error: 'Failed to fetch templates' });

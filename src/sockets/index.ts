@@ -27,7 +27,11 @@ export function setupSockets(io: Server) {
 
     socket.on('check_telegram_status', async () => {
       const licenseKey = getLicenseKey();
-      const accounts = await GoogleSheetService.getAccounts(licenseKey) || [];
+      let accounts = await GoogleSheetService.getAccounts(licenseKey);
+      if (!Array.isArray(accounts)) {
+        console.error('[Socket] Failed to fetch accounts or returned error:', accounts);
+        accounts = [];
+      }
       socket.emit('tg_accounts_list', accounts);
       socket.emit('tg_status', { status: accounts.length > 0 ? 'connected' : 'disconnected' });
     });
@@ -72,7 +76,8 @@ export function setupSockets(io: Server) {
       try {
         const licenseKey = getLicenseKey();
         await TelegramService.logout(accountId);
-        const accounts = await GoogleSheetService.getAccounts(licenseKey) || [];
+        let accounts = await GoogleSheetService.getAccounts(licenseKey);
+        if (!Array.isArray(accounts)) accounts = [];
         socket.emit('tg_accounts_list', accounts);
         socket.emit('tg_status', { status: accounts.length > 0 ? 'connected' : 'disconnected' });
       } catch (err: any) {

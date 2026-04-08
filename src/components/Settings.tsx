@@ -250,7 +250,7 @@ export default function Settings() {
               </div>
             </div>
             <h3 className="text-xs font-black text-binance-text-dim uppercase tracking-widest">Linked Accounts ({accounts.length})</h3>
-            {accounts.map((acc) => (
+            {(Array.isArray(accounts) ? accounts : []).map((acc) => (
               <div key={acc.id} className="bg-binance-panel p-4 rounded-xl border border-binance-border flex items-center justify-between group">
                 <div className="flex items-center gap-4">
                   {acc.photo ? (

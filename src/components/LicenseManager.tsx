@@ -215,8 +215,7 @@ export default function LicenseManager() {
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-binance-text-dim text-sm">No licenses found. Create your first one above!</td>
                   </tr>
-                ) : (
-                  licenses.map((lic, idx) => {
+                ) : (Array.isArray(licenses) ? licenses : []).map((lic, idx) => {
                     const isExpired = new Date(lic.expiry_date) < new Date();
                     const status = isExpired ? 'expired' : lic.status;
                     

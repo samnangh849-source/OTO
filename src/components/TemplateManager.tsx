@@ -463,7 +463,7 @@ export default function TemplateManager() {
                                   {btn.type === 'flow' ? (
                                     <select value={btn.value || ''} onChange={e => updateButton(index, bIdx, { value: e.target.value })} className="flex-[2] bg-binance-panel text-xs text-binance-text px-2 py-1.5 rounded border border-binance-border outline-none focus:border-binance-yellow">
                                       <option value="">-- Select Flow --</option>
-                                      {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.type})</option>)}
+                                      {(Array.isArray(templates) ? templates : []).map(t => <option key={t.id} value={t.id}>{t.name} ({t.type})</option>)}
                                     </select>
                                   ) : btn.type === 'text' ? (
                                     <textarea placeholder="Auto-reply text" value={btn.value || ''} onChange={e => updateButton(index, bIdx, { value: e.target.value })} rows={2} className="flex-[2] bg-binance-panel text-xs text-binance-text px-2 py-1.5 rounded border border-binance-border outline-none focus:border-binance-yellow resize-y min-h-[32px]" />
@@ -506,7 +506,7 @@ export default function TemplateManager() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {templates.map(template => (
+        {(Array.isArray(templates) ? templates : []).map(template => (
           <div key={template.id} className="bg-binance-panel p-5 rounded-lg border border-binance-border hover:border-binance-text-dim transition-colors flex flex-col group relative">
             <div className="flex justify-between items-start mb-4">
               <div className="pr-12">
