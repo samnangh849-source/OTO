@@ -144,6 +144,14 @@ export default function Dashboard() {
       fetchStats();
     });
 
+    socket.on('message_media_ready', (update: { telegram_message_id: number, accountId: string, content: string }) => {
+      setMessages(prev => prev.map(m => 
+        (m.telegram_message_id === update.telegram_message_id && m.accountId === update.accountId) 
+          ? { ...m, content: update.content } 
+          : m
+      ));
+    });
+
     socket.on('tg_status', (data) => setTelegramStatus(data.status));
     socket.on('tg_accounts_list', (list) => {
       setAccounts(list);

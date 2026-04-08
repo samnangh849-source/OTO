@@ -10,7 +10,8 @@ router.use(auth);
 
 router.get('/', async (req, res) => {
     try {
-        const messages = await GoogleSheetService.getMessages() || [];
+        // Serve from RAM cache for instant UI response
+        const messages = TelegramService.getCachedMessages();
         res.json(messages);
     } catch (e) {
         res.status(500).json({ error: 'Failed to fetch messages' });
