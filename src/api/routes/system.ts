@@ -6,8 +6,14 @@ const router = express.Router();
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
 router.get('/network', (req, res) => {
-    const nets = networkInterfaces();
     const results: string[] = [];
+    
+    // If running on Render, add the Render URL if available
+    if (process.env.RENDER_EXTERNAL_URL) {
+        results.push(process.env.RENDER_EXTERNAL_URL);
+    }
+
+    const nets = networkInterfaces();
     for (const name of Object.keys(nets)) {
         for (const net of nets[name]!) {
             if (net.family === 'IPv4' && !net.internal) {

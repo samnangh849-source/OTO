@@ -281,8 +281,8 @@ export default function Settings() {
                   <Globe size={20} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-bold text-binance-text">Mobile & LAN Access</p>
-                  <p className="text-[10px] text-binance-text-dim mt-0.5">Use these addresses to access the dashboard from other devices on your Wi-Fi.</p>
+                  <p className="text-xs font-bold text-binance-text">Access from Other Devices</p>
+                  <p className="text-[10px] text-binance-text-dim mt-0.5">Use these addresses to access the dashboard from your phone or other computers.</p>
                 </div>
               </div>
               
@@ -303,14 +303,14 @@ export default function Settings() {
                   </div>
                 )) : (
                   <div className="p-2 bg-binance-bg rounded-lg border border-binance-border text-center">
-                    <p className="text-[10px] text-binance-text-dim italic">No network interfaces found</p>
+                    <p className="text-[10px] text-binance-text-dim italic">No addresses found</p>
                   </div>
                 )}
               </div>
               
               <div className="p-2 bg-binance-yellow/5 border border-binance-yellow/10 rounded-lg">
                 <p className="text-[9px] text-binance-yellow/80 leading-relaxed italic">
-                  <strong>Tip:</strong> Scan the address with your phone browser or type it manually while connected to the same Wi-Fi.
+                  <strong>Tip:</strong> Open the link above in your phone browser to access the mobile-friendly dashboard.
                 </p>
               </div>
             </div>
