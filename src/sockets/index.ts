@@ -25,6 +25,13 @@ export function setupSockets(io: Server) {
         } catch (e) { return null; }
     };
 
+    // Join room for the licenseKey
+    const licenseKey = getLicenseKey();
+    if (licenseKey) {
+        socket.join(licenseKey);
+        console.log(`[Socket] Client joined room: ${licenseKey}`);
+    }
+
     socket.on('check_telegram_status', async () => {
       const licenseKey = getLicenseKey();
       let accounts = await GoogleSheetService.getAccounts(licenseKey);

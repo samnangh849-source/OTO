@@ -78,7 +78,7 @@ export class TelegramService {
       } catch (error) {
         console.error('Handler error:', error);
       }
-    }, new NewMessage({}));
+    }, new NewMessage({ incoming: true, outgoing: true }));
   }
 
   static async processIncomingMessage(client: TelegramClient, msg: any, myId: string, licenseKey: string, io: Server) {
@@ -139,11 +139,9 @@ export class TelegramService {
     if (msg.photo || msg.video || msg.voice || msg.audio) {
         type = msg.photo ? 'image' : msg.video ? 'video' : 'voice';
         this.downloadMediaInBackground(client, msg, type, (finalContent) => {
-            const update = { telegramMessageId: msg.id, accountId: myId, text: finalContent };
-            io.emit('message_media_ready', update);
             const cached = this.messages.find(m => m.telegramMessageId === msg.id && m.accountId === myId);
             if (cached) cached.text = finalContent;
-        });
+        }, licenseKey, io);
     }
 
     const messageData = {
@@ -170,16 +168,26 @@ export class TelegramService {
     });
 
     // Only emit to sockets belonging to this licenseKey
-    // (In a more advanced setup, we'd use rooms: io.to(licenseKey).emit(...))
-    io.emit('new_message', messageData);
+    if (licenseKey) {
+        io.to(licenseKey).emit('new_message', messageData);
+    } else {
+        io.emit('new_message', messageData);
+    }
   }
 
-  private static async downloadMediaInBackground(client: TelegramClient, msg: any, type: string, callback: (url: string) => void) {
+  private static async downloadMediaInBackground(client: TelegramClient, msg: any, type: string, callback: (url: string) => void, licenseKey?: string, io?: Server) {
     try {
         const buffer = await client.downloadMedia(msg);
         if (buffer && Buffer.isBuffer(buffer)) {
             const url = await MediaService.saveBuffer(buffer, type as any);
             callback(url);
+            if (licenseKey && io) {
+                io.to(licenseKey).emit('message_media_ready', { 
+                    telegramMessageId: msg.id, 
+                    accountId: client.session.getAuthKey().toString(), // Approximate
+                    text: url 
+                });
+            }
         }
     } catch (e) {}
   }
@@ -307,6 +315,7 @@ export class TelegramService {
     if (accountId) {
       const client = this.clients.get(accountId);
       if (client) {
+        client.removeEventHandler(() => {}, new NewMessage({})); // Clear handlers
         await client.disconnect();
         this.clients.delete(accountId);
       }
