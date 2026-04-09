@@ -127,8 +127,27 @@ export default function MobileDashboard() {
       });
     });
 
-    socket.on('message_updated', (update: { id: number, is_replied: number }) => {
-      setMessages(prev => prev.map(m => m.id === update.id ? { ...m, is_replied: !!update.is_replied } : m));
+    socket.on('message_updated', (update: { id: number, is_replied: boolean }) => {
+      setMessages(prev => prev.map(m => m.id === update.id ? { ...m, is_replied: update.is_replied } : m));
+    });
+
+    socket.on('chat_history', ({ chatId, messages: cloudMsgs }) => {
+      setMessages(prev => {
+          const existingIds = new Set(prev.map(m => m.telegram_message_id || m.telegramMessageId));
+          const newMsgs = cloudMsgs.map((m: any) => ({
+              ...m,
+              id: m.telegramMessageId,
+              telegram_message_id: m.telegramMessageId,
+              chat_id: m.senderId,
+              content: m.text,
+              is_replied: m.isReplied,
+              is_outgoing: m.isOutgoing,
+              account_id: m.accountId,
+              sender_name: m.senderName,
+              sender_photo: m.senderPhoto
+          })).filter((m: any) => !existingIds.has(m.telegram_message_id));
+          return [...newMsgs, ...prev].sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      });
     });
 
     socket.on('tg_status', (data) => setTelegramStatus(data.status));
@@ -440,7 +459,8 @@ export default function MobileDashboard() {
   , [selectedChatId, visibleMessages]);
 
   useEffect(() => {
-    if (selectedChatId) {
+    if (selectedChatId && activeChat) {
+      socket.emit('tg_get_history', { accountId: activeChat.account_id, chatId: selectedChatId });
       messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
     }
   }, [selectedChatId]);
