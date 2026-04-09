@@ -40,9 +40,10 @@ RUN npm run build
 # --- Production Stage ---
 FROM node:20-slim
 
-# Install system dependencies needed for native modules in production
+# Install system dependencies needed for native modules and ffmpeg
 RUN apt-get update && apt-get install -y \
     libvips-dev \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

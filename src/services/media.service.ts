@@ -4,11 +4,16 @@ import ffmpegStatic from 'ffmpeg-static';
 import fsp from 'fs/promises';
 import path from 'path';
 import { tmpdir } from 'os';
-import { CustomFile } from 'telegram/client/uploads.js';
 import { Api } from 'telegram';
 
-if (ffmpegStatic) {
-  ffmpeg.setFfmpegPath(ffmpegStatic);
+// Try system ffmpeg first, then fallback to ffmpeg-static
+try {
+  // On Render/Linux, 'ffmpeg' is usually in the PATH if installed via apt-get
+  ffmpeg.setFfmpegPath('ffmpeg');
+} catch (e) {
+  if (ffmpegStatic) {
+    ffmpeg.setFfmpegPath(ffmpegStatic);
+  }
 }
 
 const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
