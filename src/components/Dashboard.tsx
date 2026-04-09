@@ -194,6 +194,15 @@ socket.on('message_media_ready', (update: { telegramMessageId: number, accountId
       setUserStatuses(prev => ({ ...prev, [chatId]: status }));
     });
 
+    socket.on('chat_history', ({ chatId, messages: cloudMsgs }) => {
+      setMessages(prev => {
+          // បញ្ចូលសារពី Cloud ទៅក្នុងសារដែលមានស្រាប់ (ជៀសវាងសារស្ទួន)
+          const existingIds = new Set(prev.map(m => m.telegramMessageId));
+          const newMsgs = cloudMsgs.filter((m: any) => !existingIds.has(m.telegramMessageId));
+          return [...newMsgs, ...prev].sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      });
+    });
+
     const statusCheckInterval = setInterval(() => {
       if (telegramStatus !== 'connected') {
         socket.emit('check_telegram_status');
@@ -456,7 +465,10 @@ socket.on('message_media_ready', (update: { telegramMessageId: number, accountId
   };
 
   useEffect(() => {
-    if (selectedChatId) scrollToBottom('auto');
+    if (selectedChatId && activeChat) {
+      socket.emit('tg_get_history', { accountId: activeChat.accountId, chatId: selectedChatId });
+      scrollToBottom('auto');
+    }
   }, [selectedChatId]);
 
   useEffect(() => {

@@ -308,4 +308,38 @@ export class TelegramService {
       await GoogleSheetService.deleteAccount(accountId);
     }
   }
+
+  static async getChatMessages(accountId: string, chatId: string, limit: number = 30) {
+    const client = this.clients.get(accountId);
+    if (!client) return [];
+
+    try {
+        const messages = await client.getMessages(chatId, { limit });
+        const result = [];
+        
+        for (const msg of messages) {
+            let type = 'text', text = msg.message || '';
+            
+            if (msg.photo || msg.video || msg.voice || msg.audio) {
+                type = msg.photo ? 'image' : msg.video ? 'video' : 'voice';
+                // សម្រាប់សារចាស់ៗដែលបានមកពី Cloud យើងអាចសាកល្បងទាញយក Media បើចាំបាច់
+                // ប៉ុន្តែដើម្បីឱ្យ Dashboard ដើរលឿន យើងគ្រាន់តែផ្ដល់អត្ថបទសារជាមុនសិន
+            }
+
+            result.push({
+                telegramMessageId: msg.id,
+                senderId: chatId,
+                text: text,
+                type: type,
+                isOutgoing: !!msg.out,
+                timestamp: new Date(msg.date * 1000).toISOString(),
+                accountId: accountId
+            });
+        }
+        return result.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    } catch (e) {
+        console.error('[TelegramService] Error fetching history:', e);
+        return [];
+    }
+  }
 }

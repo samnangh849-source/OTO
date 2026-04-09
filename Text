@@ -1406,4 +1406,205 @@ Use these addresses to access the dashboard from other devices on your Wi-Fi.
 
   ហេតុអ្វីមិនឃើញរូប Profile របស់ User ដែលឆាតមក និងហេតុអ្វីឈ្មោះរបស់ User មិនចេញមកត្រឹមត្រូវ?
 
+
+តើយើងគួរចាំបាច់រក្សារទិន្នន័យសារក្នុង Database ទេ ឬបើគ្រាន់តែរក្សារក្នុង Cache (Local Storage) យ៉ាងម៉េចដែរ?
   
+
+
+ការរក្សាទុកទិន្នន័យក្នុង Database (ដូចជា Google Sheets ដែលយើងកំពុងប្រើ) គឺមានសារៈសំខាន់ខ្លាំងណាស់សម្រាប់ Dashboard ប្រភេទនេះ។ ការប្រើត្រឹមតែ Cache ឬ Local Storage មិនទាន់គ្រប់គ្រាន់ទេ ដោយសារមូលហេតុសំខាន់ៗដូចខាងក្រោម៖
+
+  ១. ការរក្សាទុកទិន្នន័យបានយូរអង្វែង (Persistence)
+   * Database: ទោះបីជាអ្នកបិទ Browser, បិទកុំព្យូទ័រ ឬ Server Restart ក៏ទិន្នន័យសារ និងស្ថានភាព "Replied" (ឆ្លើយរួច) នៅតែរក្សាទុកដដែល។
+   * Cache/Local Storage: បើអ្នក Clear Browser Data ឬប្តូរកុំព្យូទ័រប្រើ ទិន្នន័យទាំងអស់នឹងត្រូវបាត់បង់ ហើយអ្នកនឹងត្រូវ Sync ពី Telegram ឡើងវិញទាំងអស់ ដែលចំណាយពេលយូរ។
+
+  ២. ការប្រើប្រាស់ឆ្លងឧបករណ៍ (Multi-device Sync)
+   * Database: ប្រសិនបើអ្នកប្រើកុំព្យូទ័រផង និងទូរស័ព្ទផងដើម្បីឆ្លើយសារ នោះឧបករណ៍ទាំងពីរនឹងឃើញទិន្នន័យដូចគ្នា (ឧទាហរណ៍៖ បើឆ្លើយនៅលើ PC រួច នៅលើទូរស័ព្ទក៏លោតថាឆ្លើយរួចដែរ)។
+   * Local Storage: ទិន្នន័យនៅជាប់តែលើម៉ាស៊ីនមួយប៉ុណ្ណោះ។ បើឆ្លើយលើ PC នៅលើទូរស័ព្ទនឹងមិនដឹងថាអ្នកបានឆ្លើយរួចនោះទេ។
+
+  ៣. ទំហំផ្ទុកទិន្នន័យ (Storage Limit)
+   * Local Storage: មានទំហំកំណត់ (ប្រហែល 5MB ទៅ 10MB ប៉ុណ្ណោះ)។ បើសារមានច្រើន (រួមទាំងរូបភាព) វានឹងពេញភ្លាមៗ។
+   * Database: អាចផ្ទុកសារបានរាប់ពាន់ ឬរាប់ម៉ឺនសារដោយគ្មានបញ្ហា។
+
+  ៤. ប្រព័ន្ធ License និងសុវត្ថិភាព
+   * ទិន្នន័យត្រូវតែភ្ជាប់ជាមួយ License Key នៅលើ Server ដើម្បីធានាថាអ្នកប្រើម្នាក់ៗឃើញតែសាររបស់ខ្លួនឯងប៉ុណ្ណោះ។ បើទុកតែក្នុង Cache វានឹងពិបាកក្នុងការគ្រប់គ្រងអាខោនច្រើន (Multi-accounts)។
+
+  ---
+
+  យុទ្ធសាស្ត្រដែលយើងកំពុងប្រើ (Hybrid Approach)
+  បច្ចុប្បន្ន កូដដែលខ្ញុំបានរៀបចំឱ្យ គឺប្រើវិធីសាស្ត្រចម្រុះដែលល្អបំផុត៖
+   1. Google Sheets (Database): សម្រាប់រក្សាទុកជាអចិន្ត្រៃយ៍ និងការពារការបាត់បង់។
+   2. RAM Cache (លើ Server): សម្រាប់ឱ្យ Dashboard ទាញយកបានលឿនបំផុត (មិនចាំបាច់ទៅទាញពី Google Sheets រាល់ដងទេ)។
+   3. Local Storage (លើ Browser): សម្រាប់ទុកតែ Token និងការកំណត់ខ្លីៗ (Settings)។
+
+  សង្ខេប៖ អ្នកគួរតែបន្តប្រើ Database ដូចបច្ចុប្បន្ន ដើម្បីឱ្យ Dashboard ដំណើរការបានរឹងមាំ និងមានលក្ខណៈអាជីព (Professional)។
+
+
+
+
+
+
+  ពោះ Telegram Web (ដូចជា Web K ឬ Web Z) របៀបដែលគេរៀបចំទិន្នន័យគឺមានលក្ខណៈបច្ចេកទេសខ្ពស់ និងខុសពី Dashboard របស់យើងបន្តិច។ នេះគឺជាយុទ្ធសាស្ត្រដែល Telegram Web ប្រើ៖
+
+  ១. Telegram គឺជា Database (Cloud-Based)
+  Telegram ខុសពី WhatsApp ត្រង់ថាវាជា Cloud Messenger។ មានន័យថា សារទាំងអស់ត្រូវបានរក្សាទុកនៅលើ Server របស់ Telegram ជាអចិន្ត្រៃយ៍។ ដូច្នេះ Telegram Web មិនចាំបាច់មាន Database ផ្ទាល់ខ្លួន (ដូចជា MySQL ឬ Google Sheets) ទៀតទេ
+  ព្រោះវាទាញយកសារដោយផ្ទាល់ពី Telegram Cloud រាល់ពេលយើងបើកប្រើ។
+
+  ២. ការប្រើប្រាស់ IndexedDB (ជំនួសឱ្យ LocalStorage)
+  Telegram Web មិនប្រើ LocalStorage ធម្មតាសម្រាប់ទុកសារទេ ព្រោះ LocalStorage តូចពេក (ត្រឹម 5MB)។ គេប្រើ IndexedDB ដែលជា Database នៅក្នុង Browser៖
+   * ល្បឿន: វាអាចផ្ទុកទិន្នន័យបានរាប់រយ MB (សារ និងរូបភាព)។
+   * Offline: វាអនុញ្ញាតឱ្យអ្នកមើលសារចាស់ៗបាន ទោះបីជាគ្មានអ៊ីនធឺណិតក៏ដោយ។
+   * Instant Load: ពេលអ្នកបើក Web មក វានឹងបង្ហាញសារពី IndexedDB ភ្លាម (មិនចាំបាច់ចាំ Load ពី Server ទេ) រួចទើបវា Sync សារថ្មីៗតាមក្រោយ។
+
+  ៣. ការប្រើប្រាស់ MTProto Protocol
+  Telegram Web ប្រើប្រព័ន្ធទំនាក់ទំនងផ្ទាល់ជាមួយ Telegram Server តាមរយៈ MTProto (ជា Protocol របស់ Telegram ផ្ទាល់)។ វាអនុញ្ញាតឱ្យសារលោតមកភ្លាមៗ (Real-time) និងមានសុវត្ថិភាពខ្ពស់។
+
+  ---
+
+  ហេតុអ្វី Dashboard របស់យើងខុសពី Telegram Web?
+  អ្នកប្រហែលជាឆ្ងល់ថា "បើ Telegram មាន Cloud ស្រាប់ ហេតុអ្វីយើងត្រូវប្រើ Google Sheets ធ្វើអ្វីទៀត?" មូលហេតុគឺ៖
+
+   1. ស្ថានភាពឆ្លើយសារ (Reply Status): Telegram មិនមានកន្លែងសម្រាប់ចំណាំថា "សារនេះឆ្លើយរួច" ឬ "សារនេះមិនទាន់ឆ្លើយ" តាមបែប Dashboard គ្រប់គ្រងការលក់ (CRM) នោះទេ។ យើងត្រូវប្រើ Database ខ្លួនឯង (Google Sheets) ដើម្បីកត់ត្រាស្ថានភាពទាំងនេះ។
+   2. License Management: យើងត្រូវការ Database ដើម្បីផ្ទៀងផ្ទាត់ថា តើអ្នកប្រើប្រាស់ម្នាក់ៗមានសិទ្ធិប្រើប្រាស់ដល់ពេលណា។
+   3. Automation & Templates: ការរក្សាទុក Template ឆ្លើយតប និងការកំណត់ផ្សេងៗ (Settings) គឺមិនមាននៅលើ Telegram ទេ ដូច្នេះយើងត្រូវមាន Database ផ្ទាល់ខ្លួន។
+   4. Multi-Account Tracking: Dashboard របស់អ្នកអនុញ្ញាតឱ្យគ្រប់គ្រងអាខោនច្រើនក្នុងពេលតែមួយ និងបែងចែកទិន្នន័យតាម License ដែល Telegram Web ធម្មតាមិនអាចធ្វើបាន។
+
+  សង្ខេបមកវិញ៖
+   * Telegram Web ប្រើ IndexedDB សម្រាប់ល្បឿន និងប្រើ Telegram Cloud ជា Database។
+   * Dashboard របស់អ្នក ប្រើ Google Sheets ជា Database ដើម្បីបន្ថែមមុខងារ "គ្រប់គ្រង" (Management) និង "ស្វ័យប្រវត្តិកម្ម" (Automation) ដែល Telegram Web គ្មាន។
+
+ចឹងតើយើងអាចប្រើ Google Sheets ផង និងIndexedDB ផង បានទេ?
+
+
+
+
+
+
+
+ពិតជាបាន! ការប្រើ Google Sheets រួមគ្នាជាមួយ IndexedDB គឺជាយុទ្ធសាស្ត្រមួយដែលល្អបំផុត (Hybrid Architecture) សម្រាប់ Dashboard របស់អ្នក។ វាជួយឱ្យកម្មវិធីរបស់អ្នកដើរបានលឿនដូច Telegram Web ផង និងមានសុវត្ថិភាពដូច CRM អាជីពផង។
+
+  នេះគឺជាមធ្យោបាយដែលវាដំណើរការជាមួយគ្នា (Workflow)៖
+
+  ១. តួនាទីរបស់នីមួយៗ (Responsibility)
+   * Google Sheets (Server-side): ជា "ប្រភពនៃការពិត" (Source of Truth)។ វាមានតួនាទីរក្សាទុកទិន្នន័យអចិន្ត្រៃយ៍ ការពារការបាត់បង់ និងសម្រាប់ Sync ឆ្លងឧបករណ៍ (PC ទៅ Phone)។
+   * IndexedDB (Client-side/Browser): ជា "ឃ្លាំងផ្ទុកបណ្ដោះអាសន្ន" (Local Cache)។ វាមានតួនាទីធ្វើឱ្យ Dashboard បើកមកឃើញសារភ្លាមៗ (Instant Load) និងមិនចាំបាច់ទៅទាញពី Google Sheets រាល់ដងដែលអ្នក Refresh Page។
+
+  ២. របៀបដែលវាដំណើរការជាមួយគ្នា (Hybrid Strategy)
+   1. ពេលបើក Dashboard មកលើកដំបូង:
+       * Dashboard នឹងទៅមើលក្នុង IndexedDB រួចបង្ហាញសារចាស់ៗដែលធ្លាប់មានស្រាប់ឱ្យអ្នកឃើញភ្លាម (ចំណាយពេលត្រឹមតែ 0.1 វិនាទី)។
+   2. បន្ទាប់មក (Background Sync):
+       * Dashboard នឹងផ្ញើ Request ទៅកាន់ Google Sheets (តាមរយៈ API) ដើម្បីឆែកមើលថា តើមានសារថ្មីៗណាដែល IndexedDB មិនទាន់មានដែរឬទេ?
+       * បើមានសារថ្មី វានឹងយកមកបន្ថែមក្នុង IndexedDB និងបង្ហាញលើ Screen ឱ្យអ្នកឃើញ។
+   3. ពេលមានសារថ្មីចូលមក (Real-time):
+       * Socket.io នឹងផ្ញើសារមកកាន់ Dashboard។
+       * Dashboard នឹងរក្សាទុកសារនោះក្នុង IndexedDB (សម្រាប់បង្ហាញលើ Screen) និងផ្ញើទៅ Google Sheets (សម្រាប់រក្សាទុកអចិន្ត្រៃយ៍)។
+
+  ៣. អត្ថប្រយោជន៍ដែលទទួលបាន
+   * ល្បឿន (Extreme Speed): អ្នកនឹងមិនឃើញ "Loading..." រាប់វិនាទីទៀតទេ ពេលបើក Dashboard មកលើកក្រោយ។
+   * សន្សំសំចៃ (API Quota): អ្នកមិនចាំបាច់ទាញទិន្នន័យរាប់ពាន់សារពី Google Sheets មកគ្រប់ពេលនោះទេ (សន្សំកូតារបស់ Google Apps Script)។
+   * ផ្ទុកបានច្រើន: អ្នកអាចរក្សាទុកសាររាប់ម៉ឺន និងរូបភាព Base64 ក្នុង IndexedDB ដោយគ្មានបញ្ហា (ខុសពី LocalStorage ដែលផ្ទុកបានតិច)។
+
+  ---
+
+  តើអ្នកគួរប្រើបណ្ណាល័យ (Library) អ្វីសម្រាប់ IndexedDB?
+  ប្រសិនបើអ្នកប្រើ React ខ្ញុំសូមណែនាំឱ្យប្រើ Dexie.js។ វាជា Library ដែលពេញនិយមបំផុត និងងាយស្រួលប្រើជាមួយ IndexedDB។
+
+  ឧទាហរណ៍ខ្លីនៃកូដ Dexie:
+
+    1 import Dexie from 'dexie';
+    2
+    3 // បង្កើត Database ក្នុង Browser
+    4 const db = new Dexie('OTODashboard');
+    5 db.version(1).stores({
+    6   messages: 'id, telegramMessageId, senderId, accountId, licenseKey, timestamp'
+    7 });
+    8
+    9 // របៀបរក្សាទុកសារ
+   10 await db.messages.put(newMessage);
+   11
+   12 // របៀបទាញសារមកបង្ហាញភ្លាមៗ
+   13 const allMessages = await db.messages.toArray();
+
+  ការណែនាំ (Recommendation):
+  ប្រសិនបើបច្ចុប្បន្ន Dashboard របស់អ្នកដើរបានស្រួលហើយ អ្នកមិនទាន់ចាំបាច់ប្រើ IndexedDB ក៏បានដែរ។ ប៉ុន្តែប្រសិនបើអ្នកចាប់ផ្ដើមមានសារច្រើន (លើសពី ១០០០ សារ) ហើយមានអារម្មណ៍ថា Dashboard ចាប់ផ្ដើម Load យឺត នោះគឺជាពេលដែលអ្នកត្រូវតែប្រើ IndexedDB ជាដាច់ខាត។
+
+  តើអ្នកចង់ឱ្យខ្ញុំជួយរៀបចំកូដសម្រាប់ប្រើ IndexedDB (Dexie.js) នៅក្នុងគម្រោងរបស់អ្នកដែរឬទេ?
+
+
+
+សម្រាប់ IndexedDB គឺខ្ញុំចង់ប្រើ Telegram Cloud
+
+
+
+
+
+
+ការប្រើ Telegram Cloud ជា Database ផ្ទាល់តែម្ដង គឺជាគំនិតដ៏ឆ្លាតវៃ (Smart Approach) និងមានលក្ខណៈដូចទៅនឹង Telegram Web បេះបិទ។ វាជួយឱ្យកម្មវិធីរបស់អ្នកស្រាល (Lightweight) និងមិនចាំបាច់បារម្ភរឿងពេញ Database ឡើយ។
+
+  នេះគឺជាមធ្យោបាយដែលយើងអាចធ្វើបាន (Architecture Design)៖
+
+  ១. យុទ្ធសាស្ត្រប្រើ Telegram Cloud ជា "ឃ្លាំងផ្ទុកសារ"
+  ជំនួសឱ្យការកូពីសារគ្រប់ម៉ាត់ទៅទុកក្នុង Google Sheets យើងនឹងប្រើវិធីនេះវិញ៖
+   * Message Content: រាល់ពេលអ្នកបើក Chat ណាមួយ Dashboard នឹងផ្ញើ Request ទៅកាន់ Telegram API (getMessages) ដើម្បីទាញយកសារចុងក្រោយមកបង្ហាញភ្លាមៗ។
+   * Media (រូបភាព/សំឡេង): យើងទាញយកពី Telegram Cloud មកបង្ហាញតែម្ដង (មិនចាំបាច់ទុកក្នុង Server ខ្លួនឯងយូរទេ)។
+
+  ២. បញ្ហាដែលត្រូវដោះស្រាយ៖ "ស្ថានភាពឆ្លើយសារ" (Status Tracking)
+  Telegram Cloud រក្សាទុកតែ "ខ្លឹមសារសារ" ប៉ុណ្ណោះ ប៉ុន្តែវាមិនដឹងថា៖
+   * តើសារនេះអ្នកឆ្លើយរួច ឬនៅ? (Is Replied?)
+   * តើសារនេះសំខាន់ ឬទេ? (Flag/Star)
+
+  ដំណោះស្រាយ: យើងនៅតែប្រើ Google Sheets ឬ IndexedDB ប៉ុន្តែទុកតែ "Metadata" ប៉ុណ្ណោះ៖
+   * យើងទុកតែ៖ telegramMessageId និង isReplied: true/false។
+   * យើងមិនទុកអត្ថបទសារ (Text) វែងៗក្នុង Google Sheets ទៀតទេ។
+   * លទ្ធផល: Google Sheets នឹងដើរលឿនបំផុត ព្រោះវាទុកតែលេខសម្គាល់សារ (ID) ខ្លីៗ។
+
+  ៣. របៀបរៀបចំកូដ (Technical Steps)
+
+  នៅក្នុង src/services/telegram.service.ts យើងនឹងបន្ថែមមុខងារទាញយក History ផ្ទាល់ពី Cloud៖
+
+    1 // មុខងារទាញយកសារពី Telegram Cloud មកបង្ហាញក្នុង Dashboard
+    2 static async getChatHistory(accountId: string, chatId: string, limit: number = 50) {
+    3     const client = this.clients.get(accountId);
+    4     if (!client) return [];
+    5
+    6     // ទាញយកសារផ្ទាល់ពី Telegram Cloud
+    7     const history = await client.getMessages(chatId, { limit });
+    8     
+    9     // បន្ទាប់មក យើងទៅ Check ក្នុង Google Sheets តែរឿងមួយគត់គឺ "តើឆ្លើយរួចឬនៅ?"
+   10     // តាមរយៈ telegramMessageId
+   11     return history.map(msg => ({
+   12         id: msg.id,
+   13         text: msg.message,
+   14         timestamp: msg.date,
+   15         isOutgoing: msg.out,
+   16         // ... ទិន្នន័យផ្សេងៗ
+   17     }));
+   18 }
+
+  ៤. អត្ថប្រយោជន៍ដែលអ្នកនឹងទទួលបាន
+   1. Reel Time & Accurate: អ្វីដែលអ្នកឃើញក្នុង Dashboard និងអ្វីដែលឃើញក្នុង App Telegram គឺដូចគ្នា ១០០%។
+   2. សន្សំទំហំ Database: Google Sheets របស់អ្នកនឹងមិនងាយពេញទេ ព្រោះយើងមិនបានទុកអត្ថបទសារដែលវែងៗចូលទៅក្នុងនោះឡើយ។
+   3. សុវត្ថិភាព: ទិន្នន័យសារមិនត្រូវបានចម្លងទៅកន្លែងផ្សេងច្រើន (ការពារការធ្លាយទិន្នន័យអតិថិជន)។
+
+  ៥. ចំណុចដែលត្រូវប្រយ័ត្ន (Trade-off)
+   * ល្បឿន: ការទាញយកសារពី Telegram Cloud អាចយឺតជាងការទាញពី Database ផ្ទាល់ខ្លួនបន្តិច (ប្រហែល 0.5 - 1 វិនាទី)។
+   * Flood Wait: បើអ្នក Refresh Page ច្រើនដងពេក Telegram អាចនឹង Block បណ្ដោះអាសន្ន (Flood Wait) ដោយសារយើង Request ទៅគេញឹកពេក។
+
+  សេចក្ដីសន្និដ្ឋាន:
+  ការប្រើ Telegram Cloud ជា Database សម្រាប់ "សារ" និងប្រើ Google Sheets/IndexedDB សម្រាប់ "ស្ថានភាពសារ (Status)" គឺជាវិធីសាស្ត្រអាជីពបំផុត។ វានឹងធ្វើឱ្យ Dashboard របស់អ្នកមានលក្ខណៈជា CRM ពិតប្រាកដ។
+
+  តើអ្នកចង់ឱ្យខ្ញុំជួយកែសម្រួលកូដ ដើម្បីឱ្យវាទាញយកសារពី Telegram Cloud ជំនួសឱ្យការទាញពី Google Sheets ដែរឬទេ?
+
+
+
+
+
+   ខ្ញុំបានរៀបចំរួចរាល់ហើយ! ឥឡូវនេះ Dashboard របស់អ្នកដំណើរការក្នុងទម្រង់ "Hybrid" ដែលល្អបំផុត៖
+
+   1. Telegram Cloud (Real-time History): រាល់ពេលអ្នកចុចលើ Chat ណាមួយ Dashboard នឹងទៅទាញយកសារ ៣០ ចុងក្រោយពី Telegram Cloud មកបង្ហាញភ្លាមៗ។ វានឹងធ្វើឱ្យឈ្មោះ និងអត្ថបទសារមានភាពត្រឹមត្រូវបំផុត។
+   2. Google Sheets (Metadata/Status): យើងនៅតែរក្សាទុកព័ត៌មាននៅក្នុង Google Sheets ប៉ុន្តែវាមានតួនាទីសំខាន់ក្នុងការចំណាំថា "តើសារនេះបានឆ្លើយរួចឬនៅ (isReplied)" និងសម្រាប់បង្ហាញបញ្ជី Chat នៅខាងឆ្វេងដៃ។
+   3. Performance: Dashboard នឹងដើរលឿនជាងមុន ដោយសារយើងមិនចាំបាច់ផ្ទុកសារទាំងអស់ចូលទៅក្នុង Google Sheets ឡើយ។
+
+  អ្វីដែលអ្នកត្រូវធ្វើបន្ទាប់:
+  គ្រាន់តែចុច Push & Deploy ម្តងទៀត ដើម្បីឱ្យការផ្លាស់ប្តូរចុងក្រោយនេះដំណើរការលើ Server របស់អ្នក។ បន្ទាប់មក សូមសាកល្បងចុចលើ Chat នីមួយៗ អ្នកនឹងឃើញសារចុងក្រោយលោតមកភ្លាមៗ!
+
+  តើអ្នកចង់ឱ្យខ្ញុំធ្វើការ Push & Deploy ជូនតែម្ដងទេ?

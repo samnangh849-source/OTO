@@ -145,6 +145,32 @@ export function setupSockets(io: Server) {
         }
     });
 
+    socket.on('tg_get_history', async (data: { accountId: string, chatId: string }) => {
+        try {
+            const licenseKey = getLicenseKey();
+            if (!licenseKey) return;
+
+            const messages = await TelegramService.getChatMessages(data.accountId, data.chatId);
+            const dbMessages = await GoogleSheetService.getMessages(licenseKey) || [];
+
+            // បញ្ចូលស្ថានភាព isReplied ពី Google Sheets ចូលទៅក្នុងសារដែលបានមកពី Cloud
+            const combined = messages.map(m => {
+                const dbMatch = dbMessages.find(dbm => dbm.telegramMessageId.toString() === m.telegramMessageId.toString() && dbm.accountId === m.accountId);
+                return {
+                    ...m,
+                    id: m.telegramMessageId, // ប្រើ ID ពី Telegram តែម្ដង
+                    isReplied: dbMatch ? dbMatch.isReplied : false,
+                    senderName: dbMatch ? dbMatch.senderName : (m.isOutgoing ? 'Me' : 'User ' + m.senderId),
+                    senderPhoto: dbMatch ? dbMatch.senderPhoto : ''
+                };
+            });
+
+            socket.emit('chat_history', { chatId: data.chatId, messages: combined });
+        } catch (e) {
+            console.error('[Socket] Get history error:', e);
+        }
+    });
+
     socket.on('disconnect', () => {
         if (activeAuthClient) activeAuthClient.disconnect();
     });
