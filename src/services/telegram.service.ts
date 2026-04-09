@@ -141,7 +141,7 @@ export class TelegramService {
         this.downloadMediaInBackground(client, msg, type, (finalContent) => {
             const cached = this.messages.find(m => m.telegramMessageId === msg.id && m.accountId === myId);
             if (cached) cached.text = finalContent;
-        }, licenseKey, io);
+        }, licenseKey, io, myId);
     }
 
     const messageData = {
@@ -175,7 +175,7 @@ export class TelegramService {
     }
   }
 
-  private static async downloadMediaInBackground(client: TelegramClient, msg: any, type: string, callback: (url: string) => void, licenseKey?: string, io?: Server) {
+  private static async downloadMediaInBackground(client: TelegramClient, msg: any, type: string, callback: (url: string) => void, licenseKey?: string, io?: Server, accountId?: string) {
     try {
         const buffer = await client.downloadMedia(msg);
         if (buffer && Buffer.isBuffer(buffer)) {
@@ -184,7 +184,7 @@ export class TelegramService {
             if (licenseKey && io) {
                 io.to(licenseKey).emit('message_media_ready', { 
                     telegramMessageId: msg.id, 
-                    accountId: client.session.getAuthKey().toString(), // Approximate
+                    accountId: accountId, 
                     text: url 
                 });
             }
@@ -323,7 +323,7 @@ export class TelegramService {
     }
   }
 
-  static async getChatMessages(accountId: string, chatId: string, limit: number = 30) {
+  static async getChatMessages(accountId: string, chatId: string, limit: number = 30, licenseKey?: string, io?: Server) {
     const client = this.clients.get(accountId);
     if (!client) return [];
 
@@ -336,8 +336,10 @@ export class TelegramService {
             
             if (msg.photo || msg.video || msg.voice || msg.audio) {
                 type = msg.photo ? 'image' : msg.video ? 'video' : 'voice';
-                // សម្រាប់សារចាស់ៗដែលបានមកពី Cloud យើងអាចសាកល្បងទាញយក Media បើចាំបាច់
-                // ប៉ុន្តែដើម្បីឱ្យ Dashboard ដើរលឿន យើងគ្រាន់តែផ្ដល់អត្ថបទសារជាមុនសិន
+                // Trigger background download for media history
+                this.downloadMediaInBackground(client, msg, type, (url) => {
+                    // Update cache if needed
+                }, licenseKey, io, accountId);
             }
 
             result.push({

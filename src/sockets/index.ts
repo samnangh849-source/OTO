@@ -157,7 +157,7 @@ export function setupSockets(io: Server) {
             const licenseKey = getLicenseKey();
             if (!licenseKey) return;
 
-            const messages = await TelegramService.getChatMessages(data.accountId, data.chatId);
+            const messages = await TelegramService.getChatMessages(data.accountId, data.chatId, 30, licenseKey, io);
             const dbMessages = await GoogleSheetService.getMessages(licenseKey) || [];
 
             // បញ្ចូលស្ថានភាព isReplied ពី Google Sheets ចូលទៅក្នុងសារដែលបានមកពី Cloud
