@@ -526,20 +526,25 @@ export default function TemplateManager() {
                 <div className="space-y-2">
                   {(() => {
                     try {
-                      const preview = JSON.parse(template.content).slice(0, 3);
-                      return preview.map((step: any, sIdx: number) => (
-                        <div key={sIdx} className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-binance-yellow" />
-                          <span className="text-xs text-binance-text-dim truncate">
-                            {step.type === 'delay' ? `Wait ${step.duration}s` : step.content || `[${step.type}]`}
-                          </span>
-                        </div>
-                      ));
+                      const flowData = JSON.parse(template.content);
+                      const preview = flowData.slice(0, 3);
+                      return (
+                        <>
+                          {preview.map((step: any, sIdx: number) => (
+                            <div key={sIdx} className="flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-binance-yellow" />
+                              <span className="text-xs text-binance-text-dim truncate">
+                                {step.type === 'delay' ? `Wait ${step.duration}s` : step.content || `[${step.type}]`}
+                              </span>
+                            </div>
+                          ))}
+                          {flowData.length > 3 && (
+                            <p className="text-[10px] text-binance-yellow mt-1">+ {flowData.length - 3} more steps</p>
+                          )}
+                        </>
+                      );
                     } catch (e) { return <p className="text-xs text-binance-red">Invalid flow data</p>; }
                   })()}
-                  {JSON.parse(template.content).length > 3 && (
-                    <p className="text-[10px] text-binance-yellow mt-1">+ {JSON.parse(template.content).length - 3} more steps</p>
-                  )}
                 </div>
               ) : (
                 <p className="text-xs text-binance-text-dim leading-relaxed line-clamp-3">{template.content}</p>

@@ -105,6 +105,46 @@ export function setupSockets(io: Server) {
       }
     });
 
+    socket.on('tg_sync_all', async () => {
+        try {
+            const licenseKey = getLicenseKey();
+            if (!licenseKey) return;
+            const accounts = await GoogleSheetService.getAccounts(licenseKey);
+            if (!Array.isArray(accounts)) return;
+
+            for (const account of accounts) {
+                const client = TelegramService.getClient(account.id);
+                if (client && account.pts && account.date) {
+                    await TelegramService.syncUpdates(client, account.id, licenseKey, account.pts, account.date, io);
+                }
+            }
+            socket.emit('tg_sync_finished');
+        } catch (e) {
+            socket.emit('tg_sync_finished');
+        }
+    });
+
+    socket.on('tg_sync_history', async ({ days }: { days: number }) => {
+        try {
+            const licenseKey = getLicenseKey();
+            if (!licenseKey) return;
+            const accounts = await GoogleSheetService.getAccounts(licenseKey);
+            if (!Array.isArray(accounts)) return;
+
+            for (const account of accounts) {
+                const client = TelegramService.getClient(account.id);
+                if (client) {
+                    await TelegramService.syncHistory(client, account.id, licenseKey, days, (progress) => {
+                        socket.emit('tg_sync_status', { progress });
+                    });
+                }
+            }
+            socket.emit('tg_sync_finished');
+        } catch (e) {
+            socket.emit('tg_sync_finished');
+        }
+    });
+
     socket.on('disconnect', () => {
         if (activeAuthClient) activeAuthClient.disconnect();
     });

@@ -1400,3 +1400,10 @@ Use these addresses to access the dashboard from other devices on your Wi-Fi.
   តែរកមិនឃើញអថេរនេះ វាក៏ឈប់ (Failed) តែម្តង។
 
   សង្ខេប៖ បញ្ហាមិនមែនមកពីកូដខុសទេ គឺមកពី Environment Variables មិនទាន់ត្រូវបានកំណត់ក្នុង Render Dashboard។ សូមបំពេញវា រួចចុច Manual Deploy ម្តងទៀត វានឹងដំណើរការបានជោគជ័យ!
+
+
+  SYNCសារ មិនដំណើរការ និងមិនឃើញ Profile 
+
+  ហេតុអ្វីមិនឃើញរូប Profile របស់ User ដែលឆាតមក និងហេតុអ្វីឈ្មោះរបស់ User មិនចេញមកត្រឹមត្រូវ?
+
+  

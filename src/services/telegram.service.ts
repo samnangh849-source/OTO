@@ -85,11 +85,50 @@ export class TelegramService {
 
     let name = 'Unknown', photo = '';
     try {
-      const sender = await msg.getSender();
-      if (sender) {
-        name = (sender.firstName || '') + (sender.lastName ? ' ' + sender.lastName : '');
+      // Use getEntity as a more robust fallback for getting sender info
+      let sender: any = null;
+      try {
+          sender = await msg.getSender();
+          if (!sender && msg.senderId) {
+              sender = await client.getEntity(msg.senderId);
+          }
+      } catch (e) {
+          if (msg.senderId) {
+              try { sender = await client.getEntity(msg.senderId); } catch (e2) {}
+          }
       }
-    } catch (e) {}
+
+      if (sender) {
+        // Resolve Name: Priority 1. First/Last Name, 2. Title (for groups), 3. Username, 4. ID
+        const firstName = sender.firstName || '';
+        const lastName = sender.lastName || '';
+        const title = sender.title || '';
+        
+        name = (firstName + ' ' + lastName).trim();
+        if (!name && title) name = title;
+        if (!name && sender.username) name = sender.username;
+        if (!name) name = sender.id?.toString() || 'User ' + chatId;
+        
+        // Fetch sender's profile photo
+        try {
+            const photoBuffer = await client.downloadProfilePhoto(sender);
+            if (photoBuffer && photoBuffer.length > 0) {
+                if (photoBuffer.length < 25000) { 
+                    photo = 'data:image/jpeg;base64,' + photoBuffer.toString('base64');
+                } else {
+                    photo = await MediaService.saveBuffer(photoBuffer, 'image');
+                }
+            }
+        } catch (e) {
+            console.log(`[Telegram] Photo download skipped for ${name}`);
+        }
+      } else {
+          name = 'User ' + chatId;
+      }
+    } catch (e) {
+        console.error('[Telegram] Error resolving sender:', e);
+        name = 'User ' + chatId;
+    }
 
     let type = 'text', content = msg.message || '';
     if (msg.photo || msg.video || msg.voice || msg.audio) {
@@ -163,7 +202,56 @@ export class TelegramService {
           if (diff instanceof Api.updates.Difference) break;
         } else break;
       }
-    } catch (e) {}
+    } catch (e) {
+        console.error('[TelegramService] syncUpdates error:', e);
+    }
+  }
+
+  static async syncHistory(client: TelegramClient, accountId: string, licenseKey: string, days: number, onProgress: (progress: any) => void) {
+    try {
+        const dialogs = await client.getDialogs({});
+        const total = dialogs.length;
+        let current = 0;
+        const now = Math.floor(Date.now() / 1000);
+        const limitDate = now - (days * 24 * 60 * 60);
+
+        for (const dialog of dialogs) {
+            current++;
+            onProgress({ 
+                current, 
+                total, 
+                percent: Math.round((current / total) * 100) 
+            });
+
+            try {
+                let lastDate = now;
+                while (true) {
+                    const messages = await client.getMessages(dialog.id, {
+                        limit: 50,
+                        offsetDate: lastDate,
+                    });
+
+                    if (messages.length === 0) break;
+
+                    let reachedLimit = false;
+                    for (const msg of messages) {
+                        if (msg.date < limitDate) {
+                            reachedLimit = true;
+                            break;
+                        }
+                        await this.processIncomingMessage(client, msg, accountId, licenseKey, { emit: () => {} } as any);
+                        lastDate = msg.date;
+                    }
+
+                    if (reachedLimit || messages.length < 50) break;
+                }
+            } catch (e) {
+                console.error(`[TelegramService] Failed to sync history for dialog ${dialog.id}:`, e);
+            }
+        }
+    } catch (e) {
+        console.error('[TelegramService] syncHistory error:', e);
+    }
   }
 
   static async saveAccount(client: TelegramClient) {
@@ -171,8 +259,20 @@ export class TelegramService {
     let photo = '';
     try {
       const buffer = await client.downloadProfilePhoto(me);
-      if (buffer) photo = 'data:image/jpeg;base64,' + buffer.toString('base64');
-    } catch (e) {}
+      if (buffer && buffer.length > 0) {
+          // Resize or limit base64 size if needed. For now, just ensure it's a valid jpeg base64.
+          photo = 'data:image/jpeg;base64,' + buffer.toString('base64');
+          
+          // Google Sheets cell limit is 50,000 characters. 
+          // If photo is too large, it might be better to save it as a file.
+          if (photo.length > 45000) {
+              console.log(`[TelegramService] Profile photo for ${me.id} is too large (${photo.length} chars). Saving as file.`);
+              photo = await MediaService.saveBuffer(buffer, 'image');
+          }
+      }
+    } catch (e) {
+        console.error(`[TelegramService] Failed to download profile photo for ${me.id}:`, e);
+    }
 
     const session = (client.session as StringSession).save();
     let pts: number | null = null, date: number | null = null;
