@@ -361,17 +361,17 @@ export default function MobileDashboard() {
   const saveTemplate = async () => {
     try {
       if (isCreatingTemplate) {
-        const res = await api.post('/templates', templateForm);
+        const res = await api.post('/templates', { ...templateForm, id: Date.now() });
         setTemplates([...templates, res.data]);
         setIsCreatingTemplate(false);
       } else if (isEditingTemplate) {
-        await api.put(`/templates/${isEditingTemplate}`, templateForm);
-        setTemplates(templates.map(t => t.id === isEditingTemplate ? { ...t, ...templateForm } as Template : t));
+        const res = await api.put(`/templates/${isEditingTemplate}`, templateForm);
+        setTemplates(templates.map(t => t.id === isEditingTemplate ? res.data : t));
         setIsEditingTemplate(null);
       }
       setTemplateForm({});
     } catch (error: any) {
-      alert(error.message || 'Failed to save template');
+      alert(error.response?.data?.error || error.message || 'Failed to save template');
     }
   };
 
