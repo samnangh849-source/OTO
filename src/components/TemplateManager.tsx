@@ -61,12 +61,12 @@ export default function TemplateManager() {
       }
 
       if (isCreating) {
-        const res = await api.post('/templates', finalForm);
+        const res = await api.post('/templates', { ...finalForm, id: Date.now() });
         setTemplates([...templates, res.data]);
         setIsCreating(false);
       } else if (isEditing) {
-        await api.put(`/templates/${isEditing}`, finalForm);
-        setTemplates(templates.map(t => t.id === isEditing ? { ...t, ...finalForm } as Template : t));
+        const res = await api.put(`/templates/${isEditing}`, finalForm);
+        setTemplates(templates.map(t => t.id === isEditing ? res.data : t));
         setIsEditing(null);
       }
       setEditForm({});

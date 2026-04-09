@@ -35,6 +35,21 @@ router.post('/templates', async (req, res) => {
     }
 });
 
+router.put('/templates/:id', async (req, res) => {
+    try {
+        const licenseKey = (req as any).user?.key;
+        const template = {
+            ...req.body,
+            id: parseInt(req.params.id),
+            licenseKey
+        };
+        await GoogleSheetService.saveTemplate(template, licenseKey);
+        res.json(template);
+    } catch (e) {
+        res.status(500).json({ error: 'Failed to update template' });
+    }
+});
+
 router.delete('/templates/:id', async (req, res) => {
     try {
         const licenseKey = (req as any).user?.key;
