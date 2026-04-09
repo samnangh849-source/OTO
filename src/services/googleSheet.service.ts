@@ -38,6 +38,15 @@ export class GoogleSheetService {
     return this.request('delete_account', { id }, licenseKey);
   }
 
+  // Message operations
+  static async getMessages(licenseKey?: string) {
+    return this.request('get_messages', {}, licenseKey);
+  }
+
+  static async saveMessage(message: any, licenseKey?: string) {
+    return this.request('save_message', { message }, licenseKey);
+  }
+
   // Template operations
   static async getTemplates(licenseKey?: string) {
     return this.request('get_templates', {}, licenseKey);

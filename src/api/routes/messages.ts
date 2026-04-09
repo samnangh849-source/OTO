@@ -16,6 +16,20 @@ router.get('/', async (req, res) => {
         // Serve from RAM cache first
         let messages = TelegramService.getCachedMessages().filter(m => m.licenseKey === licenseKey);
         
+        // If empty (e.g., after server restart), fetch from Google Sheets
+        if (messages.length === 0) {
+            const dbMessages = await GoogleSheetService.getMessages(licenseKey);
+            if (dbMessages && Array.isArray(dbMessages)) {
+                // Return them, but also add to RAM cache for next requests
+                dbMessages.forEach(m => {
+                    if (!TelegramService.getCachedMessages().some(cm => cm.telegramMessageId === m.telegramMessageId && cm.accountId === m.accountId)) {
+                        TelegramService.addMessageToCache(m);
+                    }
+                });
+                messages = dbMessages;
+            }
+        }
+        
         res.json(messages);
     } catch (e) {
         console.error('[API] Failed to fetch messages:', e);

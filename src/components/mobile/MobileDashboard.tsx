@@ -397,43 +397,46 @@ export default function MobileDashboard() {
   };
 
   // Logic to compute conversations
-  const accountIds = new Set((Array.isArray(accounts) ? accounts : []).map(a => a.id));
-  const allVisibleMessages = (Array.isArray(messages) ? messages : []).filter(m => accountIds.has(m.account_id || ''));
-  const visibleMessages = activeAccountId ? allVisibleMessages.filter(m => m.account_id === activeAccountId) : allVisibleMessages;
+  const accountIds = new Set((Array.isArray(accounts) ? accounts : []).map(a => String(a.id)));
+  const allVisibleMessages = (Array.isArray(messages) ? messages : []).filter(m => accountIds.has(String(m.accountId || m.account_id || '')));
+  const visibleMessages = activeAccountId ? allVisibleMessages.filter(m => String(m.accountId || m.account_id) === String(activeAccountId)) : allVisibleMessages;
 
   const conversations = Object.values<Conversation>((Array.isArray(visibleMessages) ? visibleMessages : []).reduce((acc, msg) => {
-    if (!acc[msg.chat_id]) {
-      acc[msg.chat_id] = {
-        chat_id: msg.chat_id,
-        sender_name: msg.sender_name,
-        sender_photo: msg.sender_photo,
+    const chatId = String(msg.senderId || msg.chat_id);
+    if (!acc[chatId]) {
+      acc[chatId] = {
+        chat_id: chatId,
+        sender_name: msg.senderName || msg.sender_name,
+        sender_photo: msg.senderPhoto || msg.sender_photo,
         last_message: msg,
-        account_id: msg.account_id
+        account_id: msg.accountId || msg.account_id
       };
     } else {
-      if (new Date(msg.timestamp) > new Date(acc[msg.chat_id].last_message.timestamp)) {
-        acc[msg.chat_id].last_message = msg;
-        if (!msg.is_outgoing && msg.sender_name && msg.sender_name !== 'Me') {
-          acc[msg.chat_id].sender_name = msg.sender_name;
-          acc[msg.chat_id].sender_photo = msg.sender_photo;
+      const msgTime = new Date(msg.timestamp).getTime();
+      const lastMsgTime = new Date(acc[chatId].last_message.timestamp).getTime();
+      if (msgTime > lastMsgTime) {
+        acc[chatId].last_message = msg;
+        if (!(msg.isOutgoing || msg.is_outgoing) && (msg.senderName || msg.sender_name) && (msg.senderName || msg.sender_name) !== 'Me') {
+          acc[chatId].sender_name = msg.senderName || msg.sender_name;
+          acc[chatId].sender_photo = msg.senderPhoto || msg.sender_photo;
         }
       }
     }
 
-    if ((!acc[msg.chat_id].sender_name || acc[msg.chat_id].sender_name === 'Me') && !msg.is_outgoing && msg.sender_name && msg.sender_name !== 'Me') {
-      acc[msg.chat_id].sender_name = msg.sender_name;
-      acc[msg.chat_id].sender_photo = msg.sender_photo;
+    if ((!acc[chatId].sender_name || acc[chatId].sender_name === 'Me') && !(msg.isOutgoing || msg.is_outgoing) && (msg.senderName || msg.sender_name) && (msg.senderName || msg.sender_name) !== 'Me') {
+      acc[chatId].sender_name = msg.senderName || msg.sender_name;
+      acc[chatId].sender_photo = msg.senderPhoto || msg.sender_photo;
     }
 
     return acc;
   }, {} as Record<string, Conversation>)).sort((a, b) => new Date(b.last_message.timestamp).getTime() - new Date(a.last_message.timestamp).getTime());
 
   const activeChat = React.useMemo(() => 
-    selectedChatId ? conversations.find(c => c.chat_id === selectedChatId) : null
+    selectedChatId ? conversations.find(c => String(c.chat_id) === String(selectedChatId)) : null
   , [selectedChatId, conversations]);
 
   const activeChatMessages = React.useMemo(() => 
-    visibleMessages.filter(m => m.chat_id === selectedChatId).sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+    visibleMessages.filter(m => String(m.senderId || m.chat_id) === String(selectedChatId)).sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
   , [selectedChatId, visibleMessages]);
 
   useEffect(() => {
@@ -449,11 +452,11 @@ export default function MobileDashboard() {
   }, [activeChatMessages.length]);
 
   const filteredConversations = conversations.filter(c => 
-    c.sender_name.toLowerCase().includes(searchQuery.toLowerCase())
+    (c.sender_name || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getUnreadCount = (chatId: string) => {
-    return visibleMessages.filter(msg => msg.chat_id === chatId && !msg.is_outgoing && !msg.is_replied).length;
+    return visibleMessages.filter(msg => String(msg.senderId || msg.chat_id) === String(chatId) && !(msg.isOutgoing || msg.is_outgoing) && !(msg.isReplied || msg.is_replied)).length;
   };
 
   const getUserStatusText = (chatId: string) => {

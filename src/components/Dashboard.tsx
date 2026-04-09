@@ -136,14 +136,13 @@ export default function Dashboard() {
       setMessages(prev => prev.map(m => m.id === update.id ? { ...m, isReplied: update.isReplied } : m));
       fetchStats();
     });
-
-    socket.on('message_media_ready', (update: { telegramMessageId: number, accountId: string, text: string }) => {
-      setMessages(prev => prev.map(m => 
-        (m.telegramMessageId === update.telegramMessageId && m.accountId === update.accountId) 
-          ? { ...m, text: update.text } 
-          : m
-      ));
-    });
+socket.on('message_media_ready', (update: { telegramMessageId: number, accountId: string, text: string }) => {
+  setMessages(prev => prev.map(m => 
+    (m.telegramMessageId === update.telegramMessageId && String(m.accountId) === String(update.accountId)) 
+      ? { ...m, text: update.text } 
+      : m
+  ));
+});
 
     socket.on('tg_status', (data) => setTelegramStatus(data.status));
     socket.on('tg_accounts_list', (list) => {
@@ -379,16 +378,17 @@ export default function Dashboard() {
     accountId?: string;
   }
 
-  const accountIds = new Set((Array.isArray(accounts) ? accounts : []).map(a => a.id));
-  const allVisibleMessages = (Array.isArray(messages) ? messages : []).filter(m => accountIds.has(m.accountId || ''));
-  const visibleMessages = activeAccountId ? allVisibleMessages.filter(m => m.accountId === activeAccountId) : allVisibleMessages;
+  const accountIds = new Set((Array.isArray(accounts) ? accounts : []).map(a => String(a.id)));
+  const allVisibleMessages = (Array.isArray(messages) ? messages : []).filter(m => accountIds.has(String(m.accountId || '')));
+  const visibleMessages = activeAccountId ? allVisibleMessages.filter(m => String(m.accountId) === String(activeAccountId)) : allVisibleMessages;
 
   const conversations = Object.values<Conversation>((Array.isArray(visibleMessages) ? visibleMessages : []).reduce((acc, msg) => {
     if (!msg.senderId) return acc;
+    const sId = String(msg.senderId);
     const msgTime = msg.timestamp ? new Date(msg.timestamp).getTime() : 0;
 
-    if (!acc[msg.senderId]) {
-      acc[msg.senderId] = {
+    if (!acc[sId]) {
+      acc[sId] = {
         senderId: msg.senderId,
         senderName: msg.senderName,
         senderPhoto: msg.senderPhoto,
@@ -396,19 +396,19 @@ export default function Dashboard() {
         accountId: msg.accountId
       };
     } else {
-      const lastMsgTime = acc[msg.senderId].lastMessage.timestamp ? new Date(acc[msg.senderId].lastMessage.timestamp).getTime() : 0;
+      const lastMsgTime = acc[sId].lastMessage.timestamp ? new Date(acc[sId].lastMessage.timestamp).getTime() : 0;
       if (msgTime > lastMsgTime) {
-        acc[msg.senderId].lastMessage = msg;
+        acc[sId].lastMessage = msg;
         if (!msg.isOutgoing && msg.senderName && msg.senderName !== 'Me') {
-          acc[msg.senderId].senderName = msg.senderName;
-          acc[msg.senderId].senderPhoto = msg.senderPhoto;
+          acc[sId].senderName = msg.senderName;
+          acc[sId].senderPhoto = msg.senderPhoto;
         }
       }
     }
     
-    if ((!acc[msg.senderId].senderName || acc[msg.senderId].senderName === 'Me' || acc[msg.senderId].senderName === msg.senderId) && !msg.isOutgoing && msg.senderName && msg.senderName !== 'Me') {
-      acc[msg.senderId].senderName = msg.senderName;
-      acc[msg.senderId].senderPhoto = msg.senderPhoto;
+    if ((!acc[sId].senderName || acc[sId].senderName === 'Me' || String(acc[sId].senderName) === sId) && !msg.isOutgoing && msg.senderName && msg.senderName !== 'Me') {
+      acc[sId].senderName = msg.senderName;
+      acc[sId].senderPhoto = msg.senderPhoto;
     }
 
     return acc;
@@ -536,9 +536,9 @@ export default function Dashboard() {
                 {filteredConversations.length === 0 ? (
                   <div className="p-4 text-center text-xs text-binance-text-dim">{telegramStatus !== 'connected' ? 'Telegram disconnected: please relink in Settings' : 'No messages: select account or connect Telegram.'}</div>
                 ) : filteredConversations.map(chat => {
-                  const isActive = selectedChatId === chat.senderId;
+                  const isActive = String(selectedChatId) === String(chat.senderId);
                   const isTyping = typingUsers[chat.senderId];
-                  const unreadCount = visibleMessages.filter(msg => msg.senderId === chat.senderId && !msg.isOutgoing && !msg.isReplied).length;
+                  const unreadCount = visibleMessages.filter(msg => String(msg.senderId) === String(chat.senderId) && !msg.isOutgoing && !msg.isReplied).length;
                   return (
                     <div key={chat.senderId} onClick={() => setSelectedChatId(chat.senderId)} className={`px-4 py-3 cursor-pointer transition-all flex items-center gap-3 relative group ${isActive ? 'bg-binance-card/80 border-l-4 border-binance-yellow' : 'hover:bg-binance-card/40 border-l-4 border-transparent'}`}>
                       <div className="relative flex-shrink-0">

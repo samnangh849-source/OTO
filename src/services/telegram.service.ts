@@ -120,6 +120,11 @@ export class TelegramService {
     this.messages.unshift(messageData);
     if (this.messages.length > this.MAX_CACHE) this.messages.pop();
 
+    // Save to Google Sheets for persistence
+    GoogleSheetService.saveMessage(messageData, licenseKey).catch(e => {
+        console.error('[TelegramService] Failed to save message to Google Sheets:', e);
+    });
+
     // Only emit to sockets belonging to this licenseKey
     // (In a more advanced setup, we'd use rooms: io.to(licenseKey).emit(...))
     io.emit('new_message', messageData);
