@@ -177,8 +177,17 @@ export class TelegramService {
 
   private static async downloadMediaInBackground(client: TelegramClient, msg: any, type: string, callback: (url: string) => void, licenseKey?: string, io?: Server, accountId?: string) {
     try {
-        const buffer = await client.downloadMedia(msg);
+        let buffer = await client.downloadMedia(msg);
         if (buffer && Buffer.isBuffer(buffer)) {
+            // ប្រសិនបើជាសំឡេង យើងបំប្លែងវាឱ្យទៅជា Standard OGG ដើម្បីឱ្យស្រួលចាក់លើ Browser
+            if (type === 'voice') {
+                try {
+                    buffer = await MediaService.convertToOgg(buffer);
+                } catch (err) {
+                    console.error('[Telegram] Voice conversion failed, saving raw:', err);
+                }
+            }
+
             const url = await MediaService.saveBuffer(buffer, type as any);
             callback(url);
             if (licenseKey && io) {

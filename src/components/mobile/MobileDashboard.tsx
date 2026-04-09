@@ -150,6 +150,14 @@ export default function MobileDashboard() {
       });
     });
 
+    socket.on('message_media_ready', (update: { telegramMessageId: number, accountId: string, text: string }) => {
+      setMessages(prev => prev.map(m => 
+        (Number(m.telegram_message_id || m.telegramMessageId) === Number(update.telegramMessageId) && String(m.account_id || m.accountId) === String(update.accountId)) 
+          ? { ...m, content: update.text } 
+          : m
+      ));
+    });
+
     socket.on('tg_status', (data) => setTelegramStatus(data.status));
     socket.on('tg_accounts_list', (list) => {
       setAccounts(list);

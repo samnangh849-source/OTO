@@ -99,6 +99,38 @@ export function setupSockets(io: Server) {
       }
     });
 
+    socket.on('tg_send_phone', async (phone: string) => {
+      try {
+        const licenseKey = getLicenseKey();
+        if (!licenseKey) return socket.emit('tg_error', 'Unauthorized');
+        
+        activeAuthClient = new TelegramClient(new StringSession(''), TELEGRAM_API_ID, TELEGRAM_API_HASH, { connectionRetries: 5 });
+        await activeAuthClient.connect();
+        
+        await activeAuthClient.start({
+          phoneNumber: async () => phone,
+          phoneCode: async () => {
+            socket.emit('tg_code_required');
+            return new Promise((resolve) => socket.once('tg_submit_code', resolve));
+          },
+          password: async (hint) => {
+            socket.emit('tg_password_required', hint);
+            return new Promise((resolve) => socket.once('tg_submit_password', resolve));
+          },
+          onError: (err) => socket.emit('tg_error', String(err.message || err)),
+        });
+
+        const account = await TelegramService.saveAccount(activeAuthClient);
+        const updatedAccount = { ...account, licenseKey };
+        await GoogleSheetService.saveAccount(updatedAccount, licenseKey);
+        TelegramService.registerClient(account.id, activeAuthClient, io, licenseKey);
+        
+        socket.emit('tg_connected', { user: updatedAccount });
+      } catch (err: any) {
+        socket.emit('tg_error', String(err.message || err));
+      }
+    });
+
     socket.on('logout_telegram', async (accountId?: string) => {
       try {
         const licenseKey = getLicenseKey();
