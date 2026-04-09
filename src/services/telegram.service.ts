@@ -38,8 +38,13 @@ export class TelegramService {
               this.syncUpdates(client, account.id, account.licenseKey, account.pts, account.date, io);
             }
           }
-        } catch (e) {
-          console.error(`[Telegram] Failed to reconnect account ${account.id}:`, e);
+        } catch (e: any) {
+          if (e.errorMessage === 'AUTH_KEY_DUPLICATED' || e.code === 406) {
+            console.error(`[Telegram] Session conflict for account ${account.id}. Disconnecting to prevent block.`);
+            await client.disconnect();
+          } else {
+            console.error(`[Telegram] Failed to reconnect account ${account.id}:`, e.message || e);
+          }
         }
       }
     } catch (e) {
