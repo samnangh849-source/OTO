@@ -1122,8 +1122,8 @@ export default function MobileDashboard() {
           >
             <div className="p-4 flex justify-between items-center bg-black/40 border-b border-white/10">
               <h4 className="text-white font-bold flex items-center gap-2">
-                {pendingSend.type === 'voice' ? <Mic size={18} className="text-binance-yellow" /> : <ImageIcon size={18} className="text-binance-yellow" />} 
-                Preview {pendingSend.type.toUpperCase()}
+                <Send size={18} className="text-binance-yellow" />
+                Confirm Order
               </h4>
               <button onClick={() => { setShowPreview(false); setPendingSend(null); }} className="text-white/70">
                 <X size={24} />
@@ -1138,10 +1138,16 @@ export default function MobileDashboard() {
                 </div>
               )}
               {pendingSend.type === 'image' && (
-                <img src={pendingSend.content} className="max-h-full max-w-full object-contain rounded-lg shadow-2xl" alt="" />
+                <div className="flex flex-col items-center gap-3">
+                  <img src={pendingSend.content} className="max-h-full max-w-full object-contain rounded-lg shadow-2xl" alt="" />
+                  <p className="text-xs text-white/50">{pendingSend.name}</p>
+                </div>
               )}
               {pendingSend.type === 'video' && (
-                <video src={pendingSend.content} className="max-h-full max-w-full rounded-lg shadow-2xl" controls autoPlay />
+                <div className="flex flex-col items-center gap-3">
+                  <video src={pendingSend.content} className="max-h-full max-w-full rounded-lg shadow-2xl" controls autoPlay />
+                  <p className="text-xs text-white/50">{pendingSend.name}</p>
+                </div>
               )}
               {pendingSend.type === 'voice' && (
                 <div className="flex flex-col items-center gap-6">
@@ -1150,6 +1156,17 @@ export default function MobileDashboard() {
                   </div>
                   <audio src={pendingSend.content} controls className="w-full max-w-xs" />
                   <p className="text-sm text-binance-text-dim">Voice Message Ready</p>
+                </div>
+              )}
+              {pendingSend.type === 'file' && (
+                <div className="bg-binance-panel p-6 rounded-2xl border border-binance-border w-full max-w-xs text-center space-y-4">
+                  <div className="w-16 h-16 bg-white/5 rounded-xl flex items-center justify-center mx-auto">
+                    <LayoutTemplate size={32} className="text-binance-yellow" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white truncate px-2">{pendingSend.name}</p>
+                    <p className="text-xs text-binance-text-dim mt-1">Document File</p>
+                  </div>
                 </div>
               )}
             </div>

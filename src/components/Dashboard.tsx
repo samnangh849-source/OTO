@@ -744,6 +744,26 @@ socket.on('message_media_ready', (update: { telegramMessageId: number, accountId
                 {pendingSend.type === 'automation' && ( <div className="space-y-4"><div><p className="text-xs text-binance-text-dim mb-1">Asset Name</p><p className="text-sm font-medium text-binance-text bg-binance-bg p-3 rounded border border-binance-border">{(pendingSend.content as Template).name}</p></div></div> )}
                 {pendingSend.type === 'image' && ( <div className="space-y-2"><img src={pendingSend.content} className="w-full rounded border border-binance-border object-contain max-h-[50vh]" alt="preview" /><p className="text-xs text-center text-binance-text-dim">{pendingSend.name}</p></div> )}
                 {pendingSend.type === 'video' && ( <div className="space-y-2"><video src={pendingSend.content} className="w-full rounded border border-binance-border" controls /><p className="text-xs text-center text-binance-text-dim">{pendingSend.name}</p></div> )}
+                {pendingSend.type === 'voice' && (
+                  <div className="flex flex-col items-center gap-4 py-6 bg-binance-bg rounded-lg border border-binance-border">
+                    <div className="w-20 h-20 bg-binance-yellow/10 rounded-full flex items-center justify-center border border-binance-yellow/20 animate-pulse">
+                      <Mic size={40} className="text-binance-yellow" />
+                    </div>
+                    <audio src={pendingSend.content} controls className="w-full px-4" />
+                    <p className="text-xs text-binance-text-dim">Voice Message Preview</p>
+                  </div>
+                )}
+                {pendingSend.type === 'file' && (
+                  <div className="flex items-center gap-4 p-4 bg-binance-bg rounded-lg border border-binance-border">
+                    <div className="w-12 h-12 bg-binance-card rounded flex items-center justify-center">
+                      <LayoutTemplate size={24} className="text-binance-text-dim" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-binance-text truncate">{pendingSend.name}</p>
+                      <p className="text-xs text-binance-text-dim">Document File</p>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="p-4 bg-binance-card border-t border-binance-border flex gap-3"><button onClick={() => { setShowPreview(false); setPendingSend(null); }} className="flex-1 py-2.5 text-sm font-medium text-binance-text bg-binance-panel border border-binance-border rounded hover:bg-binance-bg transition-colors">Cancel</button><button onClick={confirmSend} disabled={replying} className="flex-1 py-2.5 bg-binance-yellow text-[#181a20] rounded font-bold text-sm hover:bg-binance-yellow-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2">{replying ? <div className="w-4 h-4 border-2 border-[#181a20]/30 border-t-[#181a20] rounded-full animate-spin" /> : 'Execute'}</button></div>
             </motion.div>
