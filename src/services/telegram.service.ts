@@ -79,6 +79,43 @@ export class TelegramService {
         console.error('Handler error:', error);
       }
     }, new NewMessage({ incoming: true, outgoing: true }));
+
+    // Track when our sent messages are read by the recipient
+    client.addEventHandler(async (update: any) => {
+      if (update instanceof Api.UpdateReadHistoryOutbox) {
+        const chatId = update.peer?.toString();
+        if (chatId) {
+          const emitData = { chatId, maxId: update.maxId };
+          if (licenseKey) io.to(licenseKey).emit('tg_read_status', emitData);
+          else io.emit('tg_read_status', emitData);
+        }
+      }
+    });
+
+    // Track typing status
+    client.addEventHandler(async (update: any) => {
+        if (update instanceof Api.UpdateUserTyping || update instanceof Api.UpdateChatUserTyping) {
+            const chatId = (update.userId || update.fromId)?.toString();
+            if (chatId) {
+                const emitData = { chatId, typing: true };
+                if (licenseKey) io.to(licenseKey).emit('tg_typing', emitData);
+                else io.emit('tg_typing', emitData);
+            }
+        }
+    });
+
+    // Track user online status
+    client.addEventHandler(async (update: any) => {
+        if (update instanceof Api.UpdateUserStatus) {
+            const chatId = update.userId?.toString();
+            const status = update.status instanceof Api.UserStatusOnline ? 'online' : 'offline';
+            if (chatId) {
+                const emitData = { chatId, status };
+                if (licenseKey) io.to(licenseKey).emit('tg_user_status', emitData);
+                else io.emit('tg_user_status', emitData);
+            }
+        }
+    });
   }
 
   static async processIncomingMessage(client: TelegramClient, msg: any, myId: string, licenseKey: string, io: Server) {
