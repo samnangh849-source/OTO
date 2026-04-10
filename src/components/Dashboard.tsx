@@ -399,8 +399,8 @@ socket.on('message_media_ready', (update: { telegramMessageId: number, accountId
     if (!acc[sId]) {
       acc[sId] = {
         senderId: msg.senderId,
-        senderName: msg.senderName,
-        senderPhoto: msg.senderPhoto,
+        senderName: (!msg.isOutgoing && msg.senderName && msg.senderName !== 'Me' && msg.senderName !== sId) ? msg.senderName : 'User ' + sId,
+        senderPhoto: !msg.isOutgoing ? msg.senderPhoto : undefined,
         lastMessage: msg,
         accountId: msg.accountId
       };
@@ -408,16 +408,18 @@ socket.on('message_media_ready', (update: { telegramMessageId: number, accountId
       const lastMsgTime = acc[sId].lastMessage.timestamp ? new Date(acc[sId].lastMessage.timestamp).getTime() : 0;
       if (msgTime > lastMsgTime) {
         acc[sId].lastMessage = msg;
-        if (!msg.isOutgoing && msg.senderName && msg.senderName !== 'Me') {
-          acc[sId].senderName = msg.senderName;
-          acc[sId].senderPhoto = msg.senderPhoto;
-        }
       }
     }
     
-    if ((!acc[sId].senderName || acc[sId].senderName === 'Me' || String(acc[sId].senderName) === sId) && !msg.isOutgoing && msg.senderName && msg.senderName !== 'Me') {
-      acc[sId].senderName = msg.senderName;
-      acc[sId].senderPhoto = msg.senderPhoto;
+    // Always prefer the name from any incoming message in this chat
+    if (!msg.isOutgoing && msg.senderName && msg.senderName !== 'Me' && msg.senderName !== sId) {
+      // If the current name is a fallback or we found a valid name, update it
+      // We also prefer the name from the LATEST incoming message if possible, 
+      // but any valid name is better than 'User ID' or the bot's name.
+      if (!acc[sId].senderName || acc[sId].senderName === 'Me' || acc[sId].senderName.startsWith('User ') || acc[sId].senderName === sId) {
+        acc[sId].senderName = msg.senderName;
+        acc[sId].senderPhoto = msg.senderPhoto;
+      }
     }
 
     return acc;

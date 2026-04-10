@@ -433,8 +433,8 @@ export default function MobileDashboard() {
     if (!acc[chatId]) {
       acc[chatId] = {
         chat_id: chatId,
-        sender_name: msg.senderName || msg.sender_name,
-        sender_photo: msg.senderPhoto || msg.sender_photo,
+        sender_name: (!(msg.isOutgoing || msg.is_outgoing) && (msg.senderName || msg.sender_name) && (msg.senderName || msg.sender_name) !== 'Me' && (msg.senderName || msg.sender_name) !== chatId) ? (msg.senderName || msg.sender_name) : 'User ' + chatId,
+        sender_photo: !(msg.isOutgoing || msg.is_outgoing) ? (msg.senderPhoto || msg.sender_photo) : undefined,
         last_message: msg,
         account_id: msg.accountId || msg.account_id
       };
@@ -443,16 +443,14 @@ export default function MobileDashboard() {
       const lastMsgTime = new Date(acc[chatId].last_message.timestamp).getTime();
       if (msgTime > lastMsgTime) {
         acc[chatId].last_message = msg;
-        if (!(msg.isOutgoing || msg.is_outgoing) && (msg.senderName || msg.sender_name) && (msg.senderName || msg.sender_name) !== 'Me') {
-          acc[chatId].sender_name = msg.senderName || msg.sender_name;
-          acc[chatId].sender_photo = msg.senderPhoto || msg.sender_photo;
-        }
       }
     }
 
-    if ((!acc[chatId].sender_name || acc[chatId].sender_name === 'Me') && !(msg.isOutgoing || msg.is_outgoing) && (msg.senderName || msg.sender_name) && (msg.senderName || msg.sender_name) !== 'Me') {
-      acc[chatId].sender_name = msg.senderName || msg.sender_name;
-      acc[chatId].sender_photo = msg.senderPhoto || msg.sender_photo;
+    if (!(msg.isOutgoing || msg.is_outgoing) && (msg.senderName || msg.sender_name) && (msg.senderName || msg.sender_name) !== 'Me' && (msg.senderName || msg.sender_name) !== chatId) {
+      if (!acc[chatId].sender_name || acc[chatId].sender_name === 'Me' || acc[chatId].sender_name.startsWith('User ') || acc[chatId].sender_name === chatId) {
+        acc[chatId].sender_name = msg.senderName || msg.sender_name;
+        acc[chatId].sender_photo = msg.senderPhoto || msg.sender_photo;
+      }
     }
 
     return acc;
