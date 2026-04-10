@@ -45,7 +45,7 @@ async function startServer() {
   app.use('/api', authRoutes);
   app.use('/api/messages', messageRoutes);
   app.use('/api', systemRoutes);
-  app.use('/api/templates', templateRoutes);
+  app.use('/api', templateRoutes);
 
   // Setup Sockets
   setupSockets(io);

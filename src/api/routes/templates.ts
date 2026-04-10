@@ -28,7 +28,10 @@ router.post('/templates', async (req, res) => {
             id: req.body.id || Date.now(),
             licenseKey
         };
-        await GoogleSheetService.saveTemplate(template, licenseKey);
+        const result = await GoogleSheetService.saveTemplate(template, licenseKey);
+        if (!result || (result as any).error) {
+            return res.status(500).json({ error: (result as any)?.error || 'Failed to save template to database' });
+        }
         res.json(template);
     } catch (e) {
         res.status(500).json({ error: 'Failed to save template' });
@@ -43,7 +46,10 @@ router.put('/templates/:id', async (req, res) => {
             id: parseInt(req.params.id),
             licenseKey
         };
-        await GoogleSheetService.saveTemplate(template, licenseKey);
+        const result = await GoogleSheetService.saveTemplate(template, licenseKey);
+        if (!result || (result as any).error) {
+            return res.status(500).json({ error: (result as any)?.error || 'Failed to update template in database' });
+        }
         res.json(template);
     } catch (e) {
         res.status(500).json({ error: 'Failed to update template' });
@@ -53,7 +59,10 @@ router.put('/templates/:id', async (req, res) => {
 router.delete('/templates/:id', async (req, res) => {
     try {
         const licenseKey = (req as any).user?.key;
-        await GoogleSheetService.deleteTemplate(parseInt(req.params.id), licenseKey);
+        const result = await GoogleSheetService.deleteTemplate(parseInt(req.params.id), licenseKey);
+        if (!result || (result as any).error || (result as any).success === false) {
+            return res.status(500).json({ error: (result as any)?.error || 'Failed to delete template from database' });
+        }
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: 'Failed to delete template' });
