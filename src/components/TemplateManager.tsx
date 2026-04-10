@@ -487,9 +487,63 @@ export default function TemplateManager() {
                   </div>
               </div>
             ) : (
-              <div className="md:col-span-2 space-y-1.5">
+              <div className="md:col-span-2 space-y-3">
                 <label className="text-xs font-semibold text-binance-text-dim">Content</label>
-                <textarea value={editForm.content || ''} onChange={e => setEditForm({ ...editForm, content: e.target.value })} className="w-full px-3 py-2 bg-binance-bg border border-binance-border rounded text-sm text-binance-text focus:border-binance-yellow outline-none min-h-[100px]" placeholder={editForm.type === 'text' ? "Message..." : "URL..."} />
+                {editForm.type === 'text' ? (
+                  <textarea value={editForm.content || ''} onChange={e => setEditForm({ ...editForm, content: e.target.value })} className="w-full px-3 py-2 bg-binance-bg border border-binance-border rounded text-sm text-binance-text focus:border-binance-yellow outline-none min-h-[100px]" placeholder="Message..." />
+                ) : (
+                  <div className="space-y-3">
+                    {editForm.content && editForm.content.startsWith('data:') && (
+                      <div className="relative w-full max-w-xs rounded-lg border border-binance-border overflow-hidden bg-binance-panel p-2">
+                        {editForm.type === 'image' && (
+                          <img src={editForm.content} className="w-full rounded h-auto object-contain max-h-48" alt="preview" />
+                        )}
+                        {editForm.type === 'video' && (
+                          <video src={editForm.content} className="w-full rounded h-auto max-h-48" controls />
+                        )}
+                        {editForm.type === 'voice' && (
+                          <div className="py-4 px-2">
+                            <audio src={editForm.content} className="w-full" controls />
+                          </div>
+                        )}
+                        <button onClick={() => setEditForm({ ...editForm, content: '' })} className="absolute top-3 right-3 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-colors">
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
+                    {!editForm.content || !editForm.content.startsWith('data:') ? (
+                      <div className="flex flex-col gap-3">
+                        <textarea value={editForm.content || ''} onChange={e => setEditForm({ ...editForm, content: e.target.value })} className="w-full px-3 py-2 bg-binance-bg border border-binance-border rounded text-sm text-binance-text focus:border-binance-yellow outline-none" placeholder="Paste URL or upload from device..." />
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-binance-text-dim">OR</span>
+                          <label className="flex items-center gap-2 cursor-pointer bg-binance-card border border-binance-border px-4 py-2 rounded text-xs font-bold text-binance-text hover:border-binance-yellow transition-colors w-fit shadow-sm">
+                            <Upload size={14} className="text-binance-yellow" /> Upload {editForm.type?.toUpperCase()}
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              accept={
+                                editForm.type === 'image' ? "image/*" : 
+                                editForm.type === 'video' ? "video/*" : 
+                                "audio/*"
+                              }
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const reader = new FileReader();
+                                reader.onload = () => setEditForm({ ...editForm, content: reader.result as string });
+                                reader.readAsDataURL(file);
+                              }} 
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-xs text-binance-text-dim flex items-center gap-2">
+                        <CheckCircle2 size={14} className="text-binance-green" /> Media uploaded and ready
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
             <div className="md:col-span-2 space-y-1.5">
