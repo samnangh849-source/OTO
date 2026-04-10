@@ -323,6 +323,21 @@ export default function MobileDashboard() {
     }
   };
 
+  const cancelRecording = () => {
+    if (mediaRecorder) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      mediaRecorder.onstop = null;
+      mediaRecorder.stop();
+      setIsRecording(false);
+      setMediaRecorder(null);
+      setRecordingTime(0);
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
+  };
+
   const confirmSend = async () => {
     if (!pendingSend || !selectedChatId) return;
     
@@ -1078,13 +1093,20 @@ export default function MobileDashboard() {
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span className="text-sm font-bold tabular-nums text-red-500">{formatTime(recordingTime)}</span>
             </div>
-            <p className="text-xs text-binance-text-dim italic">Recording voice...</p>
-            <button 
-              onClick={stopRecording}
-              className="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold active:scale-95 transition-transform"
-            >
-              STOP
-            </button>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={cancelRecording}
+                className="p-2 text-binance-text-dim active:text-red-500"
+              >
+                <Trash2 size={20} />
+              </button>
+              <button 
+                onClick={stopRecording}
+                className="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold active:scale-95 transition-transform"
+              >
+                STOP
+              </button>
+            </div>
           </div>
         )}
       </div>

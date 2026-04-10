@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Image, FileVideo, Mic, MessageCircle, CheckCircle2, Search, X, BarChart3, MessageSquare, Users, TrendingUp, ArrowRight, Bell, Settings, LogOut, Clock, Zap, LayoutTemplate, Send, Type, Video, Activity } from 'lucide-react';
+import { Image, FileVideo, Mic, MessageCircle, CheckCircle2, Search, X, BarChart3, MessageSquare, Users, TrendingUp, ArrowRight, Bell, Settings, LogOut, Clock, Zap, LayoutTemplate, Send, Type, Video, Activity, Trash } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../lib/api';
 import socket from '../lib/socket';
@@ -34,6 +34,8 @@ export default function Dashboard() {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const recordingTimerRef = useRef<any>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [loading, setLoading] = useState(false);
   const [replying, setReplying] = useState(false);
@@ -360,6 +362,10 @@ socket.on('message_media_ready', (update: { telegramMessageId: number, accountId
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
     } catch (err) {
       alert('Microphone permission denied');
     }
@@ -367,10 +373,36 @@ socket.on('message_media_ready', (update: { telegramMessageId: number, accountId
 
   const stopRecording = () => {
     if (mediaRecorder) {
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
       mediaRecorder.stop();
       setIsRecording(false);
       setMediaRecorder(null);
     }
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorder) {
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
+      mediaRecorder.onstop = null; // Prevent sending the message
+      mediaRecorder.stop();
+      setIsRecording(false);
+      setMediaRecorder(null);
+      setRecordingTime(0);
+      // Stop all tracks
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleLogout = () => {
@@ -661,7 +693,39 @@ socket.on('message_media_ready', (update: { telegramMessageId: number, accountId
                     <div ref={messagesEndRef} className="h-2" />
                   </div>
                   <AnimatePresence>{showTemplates && ( <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute bottom-24 left-6 right-6 p-4 bg-binance-panel border border-binance-border rounded-lg shadow-xl z-30"><div className="flex items-center justify-between mb-4"><h4 className="text-sm font-bold text-binance-text flex items-center gap-2"><Activity size={16} className="text-binance-yellow" /> Select Auto-Reply</h4><button onClick={() => setShowTemplates(false)} className="text-binance-text-dim hover:text-binance-text transition-all"><X size={18} /></button></div><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">{(Array.isArray(templates) ? templates : []).map(tmp => ( <button key={tmp.id} onClick={() => handleTemplateReply(tmp)} className="p-4 bg-binance-bg hover:bg-binance-card border border-binance-border rounded-md transition-all text-left flex flex-col gap-2 group"><div className="flex justify-between items-center w-full"><h5 className="text-sm font-semibold text-binance-text group-hover:text-binance-yellow transition-colors">{tmp.name}</h5><span className="text-[10px] bg-binance-panel px-2 py-0.5 rounded text-binance-text-dim border border-binance-border">{tmp.type.toUpperCase()}</span></div><p className="text-xs text-binance-text-dim line-clamp-2">{tmp.type === 'flow' ? 'Multi-step sequence' : tmp.content}</p></button> ))}</div></motion.div> )}</AnimatePresence>
-                  <div className="p-4 bg-binance-panel border-t border-binance-border flex items-center gap-2 z-10"><div className="flex items-center gap-0.5"><button onClick={() => setShowTemplates(!showTemplates)} className={`p-2 rounded-full transition-all ${showTemplates ? 'bg-binance-yellow text-[#181a20]' : 'text-binance-text-dim hover:text-binance-text hover:bg-binance-card'}`} title="Auto-reply Templates"><Zap size={20} /></button><label className="p-2 text-binance-text-dim hover:text-binance-text hover:bg-binance-card rounded-full cursor-pointer transition-all" title="Attach Media"><LayoutTemplate size={20} /><input type="file" className="hidden" accept="image/*,video/mp4,video/quicktime" onChange={handleMediaUpload} /></label></div><div className="chat-input-pill group shadow-lg"><textarea value={replyText} onChange={(e) => setReplyText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendText(); } }} placeholder="Type a message..." className="flex-1 bg-transparent border-none outline-none text-sm py-1 resize-none max-h-32 min-h-[24px] text-binance-text placeholder-binance-text-dim custom-scrollbar" rows={Math.min(replyText.split('\n').length, 4)} /><button className="p-1.5 text-binance-text-dim hover:text-binance-yellow transition-colors"><Activity size={18} /></button></div>{!replyText.trim() ? ( <button onClick={isRecording ? stopRecording : startRecording} className={`p-3 rounded-full transition-all ${isRecording ? 'bg-binance-red text-white animate-pulse' : 'bg-binance-card text-binance-text-dim hover:text-binance-text'}`}><Mic size={20} /></button> ) : ( <button onClick={handleSendText} disabled={replying || telegramStatus !== 'connected'} className={`p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${telegramStatus === 'connected' ? 'bg-binance-yellow text-[#181a20] hover:bg-binance-yellow-hover hover:scale-105 active:scale-95' : 'bg-binance-card text-binance-text-dim cursor-not-allowed'} ${replying ? 'opacity-50' : ''}`}><Send size={20} /></button> )}</div>
+                  <div className="p-4 bg-binance-panel border-t border-binance-border flex items-center gap-2 z-10">
+                    {!isRecording ? (
+                      <>
+                        <div className="flex items-center gap-0.5">
+                          <button onClick={() => setShowTemplates(!showTemplates)} className={`p-2 rounded-full transition-all ${showTemplates ? 'bg-binance-yellow text-[#181a20]' : 'text-binance-text-dim hover:text-binance-text hover:bg-binance-card'}`} title="Auto-reply Templates"><Zap size={20} /></button>
+                          <label className="p-2 text-binance-text-dim hover:text-binance-text hover:bg-binance-card rounded-full cursor-pointer transition-all" title="Attach Media"><LayoutTemplate size={20} /><input type="file" className="hidden" accept="image/*,video/mp4,video/quicktime" onChange={handleMediaUpload} /></label>
+                        </div>
+                        <div className="chat-input-pill group shadow-lg">
+                          <textarea value={replyText} onChange={(e) => setReplyText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendText(); } }} placeholder="Type a message..." className="flex-1 bg-transparent border-none outline-none text-sm py-1 resize-none max-h-32 min-h-[24px] text-binance-text placeholder-binance-text-dim custom-scrollbar" rows={Math.min(replyText.split('\n').length, 4)} />
+                          <button className="p-1.5 text-binance-text-dim hover:text-binance-yellow transition-colors"><Activity size={18} /></button>
+                        </div>
+                        {!replyText.trim() ? (
+                          <button onClick={startRecording} className="p-3 rounded-full transition-all bg-binance-card text-binance-text-dim hover:text-binance-text"><Mic size={20} /></button>
+                        ) : (
+                          <button onClick={handleSendText} disabled={replying || telegramStatus !== 'connected'} className={`p-3 rounded-full shadow-lg transition-all flex items-center justify-center ${telegramStatus === 'connected' ? 'bg-binance-yellow text-[#181a20] hover:bg-binance-yellow-hover hover:scale-105 active:scale-95' : 'bg-binance-card text-binance-text-dim cursor-not-allowed opacity-50'}`}><Send size={20} /></button>
+                        )}
+                      </>
+                    ) : (
+                      <div className="flex-1 flex items-center gap-4 bg-binance-red/10 border border-binance-red/20 rounded-full px-4 py-2">
+                        <div className="flex items-center gap-2 text-binance-red">
+                          <div className="w-2 h-2 bg-binance-red rounded-full animate-pulse" />
+                          <span className="text-sm font-bold tabular-nums">{formatTime(recordingTime)}</span>
+                        </div>
+                        <div className="flex-1 text-center">
+                          <span className="text-sm text-binance-text animate-pulse">Recording...</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button onClick={cancelRecording} className="p-2 text-binance-text-dim hover:text-binance-red transition-colors" title="Cancel Recording"><Trash size={20} /></button>
+                          <button onClick={stopRecording} className="p-3 bg-binance-red text-white rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg shadow-binance-red/20"><Mic size={20} /></button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center bg-binance-bg text-binance-text-dim"><Activity size={48} className="mb-4 opacity-20" /><p className="text-sm font-medium">Select a pair to start trading messages</p></div>
