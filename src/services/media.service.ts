@@ -93,15 +93,52 @@ export class MediaService {
     });
   }
 
+  static async convertToMp4(inputBuffer: Buffer): Promise<Buffer> {
+    const tempIn = path.join(tmpdir(), `video_in_${Date.now()}`);
+    const tempOut = path.join(tmpdir(), `video_out_${Date.now()}.mp4`);
+    await fsp.writeFile(tempIn, inputBuffer);
+    
+    return new Promise((resolve, reject) => {
+      ffmpeg(tempIn)
+        .toFormat('mp4')
+        .videoCodec('libx264')
+        .audioCodec('aac')
+        .outputOptions([
+          '-pix_fmt yuv420p',
+          '-movflags +faststart',
+          '-crf 23',
+          '-preset medium'
+        ])
+        .on('end', async () => {
+          try {
+            const outBuffer = await fsp.readFile(tempOut);
+            await Promise.all([fsp.unlink(tempIn), fsp.unlink(tempOut)]).catch(() => {});
+            resolve(outBuffer);
+          } catch (e) {
+            reject(e);
+          }
+        })
+        .on('error', async (err) => {
+          await Promise.all([fsp.unlink(tempIn), fsp.unlink(tempOut)]).catch(() => {});
+          reject(err);
+        })
+        .save(tempOut);
+    });
+  }
+
   static async preprocessMedia(type: string, content: any): Promise<{ file: any, attributes?: any[] }> {
     try {
       let buffer: Buffer;
+      let isMp4 = false;
+
       if (typeof content === 'string' && content.startsWith('data:')) {
+        const mimeType = content.split(';')[0].split(':')[1];
+        isMp4 = mimeType === 'video/mp4';
         buffer = Buffer.from(content.split(',')[1], 'base64');
       } else if (Buffer.isBuffer(content)) {
         buffer = content;
       } else if (typeof content === 'string' && content.startsWith('/uploads/')) {
-        // Already a file path, need to read it back if TelegramClient needs the buffer
+        isMp4 = content.endsWith('.mp4');
         buffer = await fsp.readFile(path.join(process.cwd(), content));
       } else {
         return { file: content };
@@ -121,9 +158,14 @@ export class MediaService {
         };
       }
       if (type === 'video') {
-        (buffer as any).name = `video_${Date.now()}.mp4`;
+        let finalBuffer = buffer;
+        if (!isMp4) {
+          console.log('[Media] Converting video to mp4...');
+          finalBuffer = await MediaService.convertToMp4(buffer);
+        }
+        (finalBuffer as any).name = `video_${Date.now()}.mp4`;
         return {
-          file: buffer,
+          file: finalBuffer,
           attributes: [new Api.DocumentAttributeVideo({ supportsStreaming: true, duration: 0, w: 1280, h: 720 })]
         };
       }
