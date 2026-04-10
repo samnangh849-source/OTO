@@ -6,20 +6,6 @@ import path from 'path';
 import { tmpdir } from 'os';
 import { Api } from 'telegram';
 
-class CustomFile {
-  name: string;
-  size: number;
-  path: string;
-  buffer: Buffer;
-
-  constructor(name: string, size: number, path: string, buffer: Buffer) {
-    this.name = name;
-    this.size = size;
-    this.path = path;
-    this.buffer = buffer;
-  }
-}
-
 // Try system ffmpeg first, then fallback to ffmpeg-static
 try {
   // On Render/Linux, 'ffmpeg' is usually in the PATH if installed via apt-get
@@ -123,18 +109,21 @@ export class MediaService {
 
       if (type === 'image') {
         const jpgBuffer = await MediaService.convertToJpg(buffer);
-        return { file: new CustomFile(`photo_${Date.now()}.jpg`, jpgBuffer.length, '', jpgBuffer) };
+        (jpgBuffer as any).name = `photo_${Date.now()}.jpg`;
+        return { file: jpgBuffer };
       }
       if (type === 'voice') {
         const oggBuffer = await MediaService.convertToOgg(buffer);
+        (oggBuffer as any).name = `voice_${Date.now()}.ogg`;
         return {
-          file: new CustomFile(`voice_${Date.now()}.ogg`, oggBuffer.length, '', oggBuffer),
+          file: oggBuffer,
           attributes: [new Api.DocumentAttributeAudio({ voice: true, duration: 0 })]
         };
       }
       if (type === 'video') {
+        (buffer as any).name = `video_${Date.now()}.mp4`;
         return {
-          file: new CustomFile(`video_${Date.now()}.mp4`, buffer.length, '', buffer),
+          file: buffer,
           attributes: [new Api.DocumentAttributeVideo({ supportsStreaming: true, duration: 0, w: 1280, h: 720 })]
         };
       }
