@@ -53,7 +53,7 @@ router.post('/send', async (req, res) => {
             sent = await client.sendMessage(peer, { message: content });
         } else {
             const { file, attributes } = await MediaService.preprocessMedia(type, content);
-            sent = await client.sendFile(peer, { file, attributes } as any);
+            sent = await client.sendFile(peer, { file, attributes, forceDocument: false } as any);
             if (content.startsWith('data:')) {
                 finalContent = await MediaService.saveBase64File(content, type as any);
             }
@@ -119,7 +119,7 @@ router.post('/reply', async (req, res) => {
                     sent = await client.sendMessage(peer, { message: step.content, replyTo });
                 } else {
                     const { file, attributes } = await MediaService.preprocessMedia(step.type, step.content);
-                    sent = await client.sendFile(peer, { file, replyTo, attributes } as any);
+                    sent = await client.sendFile(peer, { file, replyTo, attributes, forceDocument: false } as any);
                     if (step.content.startsWith('data:')) {
                         stepContent = await MediaService.saveBase64File(step.content, step.type as any);
                     }
@@ -146,7 +146,7 @@ router.post('/reply', async (req, res) => {
                 sent = await client.sendMessage(peer, { message: template.content, replyTo: message.telegramMessageId });
             } else {
                 const { file, attributes } = await MediaService.preprocessMedia(template.type, template.content);
-                sent = await client.sendFile(peer, { file, replyTo: message.telegramMessageId, attributes } as any);
+                sent = await client.sendFile(peer, { file, replyTo: message.telegramMessageId, attributes, forceDocument: false } as any);
                 if (template.content.startsWith('data:')) {
                     finalContent = await MediaService.saveBase64File(template.content, template.type as any);
                 }
